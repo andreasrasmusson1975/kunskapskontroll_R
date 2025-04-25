@@ -1,0 +1,5325 @@
+#LyX 2.4 created this file. For more info see https://www.lyx.org/
+\lyxformat 620
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+% Added by lyx2lyx
+\setlength{\parskip}{\smallskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{xcolor}
+\pagecolor{white}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\abstract}
+  {\quotation}
+  {\list{}{\leftmargin=5em \rightmargin=5em}%
+   \item[]\ignorespaces\setlength{\parindent}{0pt}}
+  {}{}
+\patchcmd{\endabstract}
+  {\endquotation}
+  {\endlist}
+  {}{}
+\makeatother
+
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=blue,
+    filecolor=blue,        
+    urlcolor=blue
+}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children no
+\language english
+\language_package default
+\inputencoding auto-legacy
+\fontencoding auto
+\font_roman "lmodern" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family rmdefault
+\use_non_tex_fonts false
+\font_sc false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement class
+\float_alignment class
+\paperfontsize 10
+\spacing onehalf
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\pdf_pagemode FullScreen
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_formatted_ref 0
+\use_minted 0
+\use_lineno 0
+\backgroundcolor #c6a5a1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 3cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip halfline
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tablestyle default
+\tracking_changes false
+\output_changes false
+\change_bars false
+\postpone_fragile_content false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\end_header
+
+\begin_body
+
+\begin_layout Title
+What determines the price of a Volkswagen?
+\end_layout
+
+\begin_layout Author
+Andreas Rasmusson - EC Utbildning
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract
+In this paper,
+ we use statistical inference via linear regression to come to the following (not so shocking) conclusions:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract
+1.
+ Volkswagen cars with more horsepower tend to be more expensive.
+\end_layout
+
+\begin_layout Abstract
+2.
+ Volkswagen cars with higher mileage tend to be less expensive.
+\end_layout
+
+\begin_layout Abstract
+3.
+ Newer model years of Volkswagen cars tend to be associated with higher prices.
+\end_layout
+
+\begin_layout Abstract
+4.
+ Manual transmissions are a reliable path to saving money (and stalling in traffic).
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract
+While none of these insights are worthy of the Nobel Prize,
+ we take great pride in demonstrating that even the most intuitively true statements deserve the full force of statistical analysis.
+ Because,
+ sometimes,
+ the obvious needs a confidence interval.
+\end_layout
+
+\begin_layout Abstract
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+The number of cars in Sweden has,
+ not surprisingly,
+ seen an increase in the years 2011 - 2023,
+ but the increase started to level out around 2020,
+ as can be seen in figure 1.1 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/Users/andre/OneDrive/Desktop/DataScience/06_R/kunskapskontroll_R/main_files/figure-html/unnamed-chunk-2-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 1.1:
+ Number of privately owned cars in Sweden over time
+\end_layout
+
+\begin_layout Plain Layout
+(Statistics Sweden (2025))
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+At the same time,
+ perhaps because of Covid and geopolitical factors,
+ the median yearly income has gone from increasing to decreasing over these years (Figure 1.2 below):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-2-3.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 2.2:
+ Median yearly income (kSEK) in Sweden over time
+\end_layout
+
+\begin_layout Plain Layout
+(Statistics Sweden (2025))
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This development suggests that perhaps people just can't afford to buy cars as much as they have in the past and the market and prices of cars may reflect that.
+ In this paper,
+ we examine what variables determine the price of a car.
+ More precisely,
+ we examine a dataset of Volkswagen car ads,
+ containing the following variables:
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Försäljningspris (ask price)
+\end_layout
+
+\begin_layout Itemize
+Säljare (seller - private or company)
+\end_layout
+
+\begin_layout Itemize
+Bränsle (fuel)
+\end_layout
+
+\begin_layout Itemize
+Växellåda (transmission)
+\end_layout
+
+\begin_layout Itemize
+Miltal (mileage)
+\end_layout
+
+\begin_layout Itemize
+Modellår (model year)
+\end_layout
+
+\begin_layout Itemize
+Biltyp (type of car)
+\end_layout
+
+\begin_layout Itemize
+Drivning (two-wheel or four-wheel drive)
+\end_layout
+
+\begin_layout Itemize
+Hästkrafter (HK) (horsepower)
+\end_layout
+
+\begin_layout Itemize
+Färg (color)
+\end_layout
+
+\begin_layout Itemize
+Modell (model)
+\end_layout
+
+\begin_layout Itemize
+Region (region)
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The non-processed dataset contains approximately 1200 observations.
+ Using this dataset,
+ we ask and answer the following:
+\end_layout
+
+\begin_layout Subsection
+Research questions
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Which sub collection,
+ if any,
+ of these variables significantly explain the variance in ask price for these ads?
+\end_layout
+
+\begin_layout Enumerate
+Can we train a linear model that predicts unsean data at an 
+\begin_inset Formula $rmse/mean(ask\text{ }price)$
+\end_inset
+
+ of at most 0.2?
+\end_layout
+
+\begin_layout Enumerate
+Seeing as a linear model is highly biased,
+ do we see a dramatic improvement in 
+\begin_inset Formula $rmse/mean(ask\text{ }price)$
+\end_inset
+
+ if we instead train a highly complex model,
+ such as an xgboost regressor on this data?
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Theoretical background
+\end_layout
+
+\begin_layout Subsection
+Linear regression
+\end_layout
+
+\begin_layout Standard
+In this sub section we introduce the linear regression model (James,
+ G.,
+ Witten,
+ D.,
+ Hastie,
+ T.
+ and Tibshirani,
+ R.
+ (2021)).
+ The linear regression model is a statistical model for estimating the relationship between a scalar response variable 
+\begin_inset Formula $Y$
+\end_inset
+
+ and a set of explanatory variables 
+\begin_inset Formula $X_{1},X_{2},...,X_{m}$
+\end_inset
+
+.
+ The model assumes that the relationship satisfies the following equation:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Y=\epsilon+\beta_{0}+\sum_{k=1}^{m}\beta_{k}X_{k}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+ is assumed to be unknown but normally distributed.
+ The 
+\begin_inset Formula $\beta$
+\end_inset
+
+ parameters are the unknown quantities to be estimated from the training data.
+ Training data is assumed to be an i.i.d sample of some size 
+\begin_inset Formula $n$
+\end_inset
+
+ from the joint distribution of 
+\begin_inset Formula $X=(X_{1},X_{2},...,X_{m})$
+\end_inset
+
+ and 
+\begin_inset Formula $Y$
+\end_inset
+
+.
+ Note that the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\begin_inset Formula $X$
+\end_inset
+
+-part
+\begin_inset Quotes erd
+\end_inset
+
+ of the training data is a an 
+\begin_inset Formula $n\times m$
+\end_inset
+
+ matrix
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+X_{train}=\begin{pmatrix}x_{11} & x_{12} & \cdots & x_{1m}\\
+x_{21} & x_{22} & \cdots & x_{2m}\\
+\vdots & \vdots & \ddots & \vdots\\
+x_{n1} & x_{n2} & \cdots & x_{nm}
+\end{pmatrix}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\begin_inset Formula $Y$
+\end_inset
+
+-part
+\begin_inset Quotes erd
+\end_inset
+
+ is a column vector
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Y_{train}=\begin{pmatrix}y_{1}\\
+y_{2}\\
+\vdots\\
+y_{n}
+\end{pmatrix}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We can estimate 
+\begin_inset Formula $Y$
+\end_inset
+
+ by choosing some coefficient vector 
+\begin_inset Formula $\beta=\begin{pmatrix}\hat{\beta}_{0}\\
+\hat{\beta}_{1}\\
+\vdots\\
+\hat{\beta}_{m}
+\end{pmatrix}$
+\end_inset
+
+ and let the estimation 
+\begin_inset Formula $\hat{y_{i}}$
+\end_inset
+
+ of Y,
+ given an observation 
+\begin_inset Formula $(x_{i1},x_{i2},...,x_{im})$
+\end_inset
+
+ of 
+\begin_inset Formula $X$
+\end_inset
+
+ be
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\hat{y}_{i}=\hat{\beta}_{0}+\sum_{k=1}^{m}\hat{\beta}_{k}x_{ik}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that,
+ if we append a column vector of ones to the far left of 
+\begin_inset Formula $X_{train}$
+\end_inset
+
+ to get what we call a design matrix 
+\begin_inset Formula $X_{d}$
+\end_inset
+
+,
+ and let 
+\begin_inset Formula $\hat{Y}=\begin{pmatrix}\hat{y}_{1}\\
+\hat{y}_{2}\\
+\vdots\\
+\hat{y}_{n}
+\end{pmatrix}$
+\end_inset
+
+,
+ we can write equation 
+\begin_inset Formula $(1)$
+\end_inset
+
+ in matrix form as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\hat{Y}=X_{d}\hat{\beta}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+How should the column vector 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+ chosen?
+ Since we have 
+\begin_inset Formula $n$
+\end_inset
+
+ observations of 
+\begin_inset Formula $Y$
+\end_inset
+
+ for 
+\begin_inset Formula $n$
+\end_inset
+
+ observations of 
+\begin_inset Formula $X$
+\end_inset
+
+,
+ it would be a good idea to choose 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+ in such a way that 
+\begin_inset Formula $X_{d}\hat{\beta}$
+\end_inset
+
+ is as close to 
+\begin_inset Formula $Y_{train}$
+\end_inset
+
+ as possible.
+ How should this closeness be measured?
+ Well,
+ 
+\begin_inset Formula $X_{d}\hat{\beta}$
+\end_inset
+
+ and 
+\begin_inset Formula $Y_{train}$
+\end_inset
+
+ are both vectors,
+ so we could simply use euclidean distance:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+||X_{d}\hat{\beta}-Y_{train}||=\sqrt{\sum_{i=1}^{n}(X_{d,i}\hat{\beta}-y_{i})^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now,
+ since the square root is an increasing function,
+ we may as well skip it,
+ since it doesn't affect the choice of 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+.
+ The strategy will therefore be to choose 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+ in such a way that the expression 
+\begin_inset Formula $||X_{d}\hat{\beta}-Y_{train}||^{2}$
+\end_inset
+
+ is minimized.
+ This expression is called the residual sum of squares (RSS).
+ Note that we have the following:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+RSS(\hat{\beta})=||X_{d}\hat{\beta}-Y_{train}||^{2}=(X_{d}\hat{\beta}-Y_{train})^{T}(X_{d}\hat{\beta}-Y_{train})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+=
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\hat{\beta}^{T}X_{d}^{T}X_{d}\hat{\beta}-\hat{\beta}^{T}X_{d}^{T}Y_{train}-Y_{train}^{T}X_{d}\hat{\beta}+Y_{train}^{T}Y_{train}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+=
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\hat{\beta}^{T}X_{d}^{T}X_{d}\hat{\beta}-\hat{\beta}^{T}X_{d}^{T}Y_{train}-(\hat{\beta}^{T}X_{d}^{T}Y_{train})^{T}+Y_{train}^{T}Y_{train}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that 
+\begin_inset Formula $\hat{\beta}^{T}X_{d}^{T}Y_{train}$
+\end_inset
+
+ is a scalar and so 
+\begin_inset Formula $\hat{\beta}^{T}X_{d}^{T}Y_{train}=(\hat{\beta}^{T}X_{d}^{T}Y_{train})^{T}$
+\end_inset
+
+.
+ We may therefore write
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+RSS(\hat{\beta})=\hat{\beta}^{T}X_{d}^{T}X_{d}\hat{\beta}-2\hat{\beta}^{T}X_{d}^{T}Y_{train}+Y_{train}^{T}Y_{train}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that this is a quadratic function of the vector 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+.
+ We now derive a closed-form solution for the 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+ that minimizes the residual sum of squares in the special case where the design matrix 
+\begin_inset Formula $X_{d}$
+\end_inset
+
+ has full column rank,
+ that is,
+ when the columns of 
+\begin_inset Formula $X_{d}$
+\end_inset
+
+ are linearly independent.
+ This is called ordinary least squares regression (OLS) and the estimator for the coefficient vector is called the OLS-estimator.
+\end_layout
+
+\begin_layout Subsubsection*
+Theorem 1.1 (OLS-regression)
+\end_layout
+
+\begin_layout Standard
+If the design matrix 
+\begin_inset Formula $X_{d}$
+\end_inset
+
+ is of full column rankt,
+ then there is exactly one vector 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+ that minimizes the residual sum of squares.
+ 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+ is given by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\hat{\beta}=(X_{d}^{T}X)^{-1}X^{T}Y_{train}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Proof
+\end_layout
+
+\begin_layout Standard
+We consider 
+\begin_inset Formula $RSS(\hat{\beta})=\hat{\beta}^{T}X_{d}^{T}X_{d}\hat{\beta}-2\hat{\beta}^{T}X_{d}^{T}Y_{train}+Y_{train}^{T}Y_{train}$
+\end_inset
+
+ as a differentiable function of 
+\begin_inset Formula $m+1$
+\end_inset
+
+ variables 
+\begin_inset Formula $\hat{\beta}=(\hat{\beta}_{0},\hat{\beta}_{1},...,\hat{\beta}_{m})$
+\end_inset
+
+.
+ The gradient 
+\begin_inset Formula $\nabla_{\hat{\beta}}RSS$
+\end_inset
+
+ is given by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\nabla_{\hat{\beta}}RSS=2X_{d}^{T}X_{d}\hat{\beta}-2X_{d}^{T}Y_{train}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Setting the gradient to zero,
+ we obtain
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+2X_{d}^{T}X_{d}\hat{\beta}-2X_{d}^{T}Y_{train}=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\Leftrightarrow
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+X_{d}^{T}X_{d}\hat{\beta}=X_{d}^{T}Y_{train}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now,
+ since 
+\begin_inset Formula $X_{d}$
+\end_inset
+
+ has full column rank,
+ it must be the case that the 
+\begin_inset Formula $n\times n$
+\end_inset
+
+ matrix 
+\begin_inset Formula $X_{d}^{T}X_{d}$
+\end_inset
+
+ is invertible.
+ We can therefore multiply both sides of equation 
+\begin_inset Formula $(2)$
+\end_inset
+
+by 
+\begin_inset Formula $(X_{d}^{T}X_{d})^{-1}$
+\end_inset
+
+ to obtain
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\hat{\beta}=(X_{d}^{T}X_{d})^{-1}X_{d}^{T}Y_{train}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Hence 
+\begin_inset Formula $\hat{\beta}=(X_{d}^{T}X_{d})^{-1}X_{d}^{T}Y_{train}$
+\end_inset
+
+ is a critical point for 
+\begin_inset Formula $RSS$
+\end_inset
+
+.
+ Taking the second derivative 
+\begin_inset Formula $\nabla_{\hat{\beta}}^{2}RSS$
+\end_inset
+
+,
+ we obtain 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\nabla_{\hat{\beta}}^{2}RSS=2X_{d}^{T}X_{d}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Again,
+ because of the full column rank condition on 
+\begin_inset Formula $X_{d}$
+\end_inset
+
+,
+ it must be the case that 
+\begin_inset Formula $X_{d}^{T}X_{d}$
+\end_inset
+
+ is positive definite.
+ It then follows that 
+\begin_inset Formula $\hat{\beta}=(X_{d}^{T}X_{d})^{-1}X_{d}^{T}Y_{train}$
+\end_inset
+
+ is a global minimum for 
+\begin_inset Formula $RSS(\hat{\beta})$
+\end_inset
+
+.
+ The proof is now complete.
+ 
+\begin_inset Formula $\lozenge$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Robust standard errors
+\end_layout
+
+\begin_layout Standard
+It is clear that the OLS-estimator 
+\begin_inset Formula $\hat{\beta}=(X_{d}^{T}X_{d})^{-1}X_{d}^{T}Y_{train}$
+\end_inset
+
+ is linear estimator.
+ A linear estimator 
+\begin_inset Formula $\hat{\gamma}$
+\end_inset
+
+ of some parameter 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ is said to be a best linear unbiased estimator,
+ or BLUE (Wikipedia contributors 2025),
+ if it satisfies the following conditions:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+It is unbiased,
+ that is,
+ 
+\begin_inset Formula $\mathbb{E}[\hat{\gamma}]=\gamma$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+It has the lowest sampling variance among the class of unbiased linear estimators
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It can be shown that the OLS-estimator is BLUE if the following conditions are met:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The errors 
+\begin_inset Formula $\epsilon_{i}=y_{i}-X_{d,i}\hat{\beta}$
+\end_inset
+
+ are uncorrelated,
+ that is,
+ 
+\begin_inset Formula $Cov(\epsilon_{i},\epsilon_{j})=0$
+\end_inset
+
+ for all 
+\begin_inset Formula $i\neq j$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\mathbb{E}[\epsilon_{i}]=0$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The errors are homoscedastic,
+ that is,
+ they all have the same finite variance,
+ 
+\begin_inset Formula $Var(\epsilon_{i})=\sigma^{2}<\infty$
+\end_inset
+
+ for all 
+\begin_inset Formula $i$
+\end_inset
+
+.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+When at least one of these conditions are not met,
+ for instance,
+ under heteroscedasticity,
+ the OLS-estimator is no longer guaranteed to BLUE.
+ As a consequence,
+ since confidence intervals for the estimates of the coefficients rely on estimates of the variance of the errors,
+ it may be the case that
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The confidence intervals are too wide or too narrow.
+\end_layout
+
+\begin_layout Enumerate
+The calculated p-values are incorrect
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+When there is reason to believe that there is heteroscedasticity,
+ robust standard errors offer an alternative method to estimate the variance-covariance matrix of the OLS-estimator,
+ which in turn gives trustworthy confidence intervals and p-values.
+ Robust standard errors do not change the estimate of 
+\begin_inset Formula $\beta$
+\end_inset
+
+ but rather adjusts the standard errors to give trustworthy confidence intervals and p-values.
+\end_layout
+
+\begin_layout Subsection
+Normality of errors
+\end_layout
+
+\begin_layout Standard
+When the errors 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+ are normally distributed,
+ it can be shown that the following holds:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+ estimates are normally distributed
+\end_layout
+
+\begin_layout Enumerate
+the standardized statistic 
+\begin_inset Formula $t_{i}=\frac{\hat{\beta}_{i}-\beta_{i}}{\hat{SE}(\hat{\beta}_{i})}$
+\end_inset
+
+ follows a 
+\begin_inset Formula $t$
+\end_inset
+
+-distribution with 
+\begin_inset Formula $n-m-1$
+\end_inset
+
+ degrees of freedom for all 
+\begin_inset Formula $n$
+\end_inset
+
+.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This in turn enables us to calculate exact confidence intervals and p-values for any 
+\begin_inset Formula $n$
+\end_inset
+
+.
+ What happens when the errors are not normally distributed?
+ Well,
+ then the distributions of 
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+ and 
+\begin_inset Formula $t_{i}$
+\end_inset
+
+ are no longer known and we have to rely on the central limit theorem to calculate approximate confidence intervals and p-values.
+ In this setting,
+ small sample inference is not theoretically justified.
+ Strictly speaking,
+ the inference is only valid in the limit,
+ as 
+\begin_inset Formula $n$
+\end_inset
+
+ tends to infinity.
+ Normality of errors is therefore desirable but not crucial if the sample size is sufficiently large.
+ 
+\end_layout
+
+\begin_layout Subsection
+Linear relationship between the predictors and the target 
+\end_layout
+
+\begin_layout Standard
+When using linear regression,
+ it is of course important that the relationship between the explanatory variables 
+\begin_inset Formula $X$
+\end_inset
+
+ and the dependent variable Y are linear.
+ Most often,
+ this is not the case and then the model will obviously not generalize well.
+ Moreover,
+ for inference,
+ it can bias the coefficients and invalidate confidence intervals and p-values leading to misleading conclusions.
+ 
+\end_layout
+
+\begin_layout Standard
+To mitigate non-linearity,
+ one can use polynomial regression,
+ but another way to do it is to use splines (Wikipedia contributors 2025).
+ Splines work by breaking up a continuous variable into piecewise polynomials that are joined smoothly at certain points called knots.
+ So instead of using global polynomial terms,
+ one uses different polynomials for different subsets of the values of the variable.
+ This way,
+ the result is a flexible curve that bends where it needs to bend,
+ without overfitting.
+\end_layout
+
+\begin_layout Subsection
+Statistical tests and statistics
+\end_layout
+
+\begin_layout Standard
+Besides the usual tests,
+ plots and statistics involved in linear regression,
+ such as the 
+\begin_inset Formula $R^{2}$
+\end_inset
+
+,
+ the 
+\begin_inset Formula $F$
+\end_inset
+
+-statistic and VIF-values,
+ a number of other statistical tests and statistics are mentioned in the method section below.
+ Here we give a brief description of each of them.
+\end_layout
+
+\begin_layout Subsubsection
+The Pearson correlation coefficient
+\end_layout
+
+\begin_layout Standard
+The Pearson correlation statistic 
+\begin_inset Formula $r$
+\end_inset
+
+ (Wikipedia contributors 2025) estimates to what degree two numerical variables exhibit a linear relationship.
+ Given samples 
+\begin_inset Formula $(x_{1},...,x_{n})$
+\end_inset
+
+ and 
+\begin_inset Formula $(y_{1},...,y_{n})$
+\end_inset
+
+ of two variables 
+\begin_inset Formula $X$
+\end_inset
+
+ and 
+\begin_inset Formula $Y$
+\end_inset
+
+,
+ It is defined as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+r=\frac{\sum_{i=1}^{n}(x_{i}-\bar{x})(y_{i}-\bar{y})}{\sqrt{\sum_{i=1}^{n}(x_{i}-\bar{x})^{2}}\cdot\sqrt{\sum_{i=1}^{n}(y_{i}-\bar{y})^{2}}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+,
+ where 
+\begin_inset Formula $\bar{x}$
+\end_inset
+
+ and 
+\begin_inset Formula $\bar{y}$
+\end_inset
+
+ are the averages of 
+\begin_inset Formula $(x_{1},...,x_{n})$
+\end_inset
+
+ and 
+\begin_inset Formula $(y_{1},...,y_{n})$
+\end_inset
+
+ respectively.
+ The statistic takes values in 
+\begin_inset Formula $[-1,1]$
+\end_inset
+
+.
+ A value of -1 indicates a perfect decreasing linear relationship and a value of 1 indicates a perfect increasing linear relationship.
+ A value of zero indicates no linear relationship.
+\end_layout
+
+\begin_layout Subsubsection
+The 
+\begin_inset Formula $\eta^{2}$
+\end_inset
+
+ statistic
+\end_layout
+
+\begin_layout Standard
+This statistic (Wikipedia contributors (2025)) estimates the proportion of variance in a dependent variable 
+\begin_inset Formula $Y$
+\end_inset
+
+ that is explained by a categorical independent variable 
+\begin_inset Formula $X$
+\end_inset
+
+.
+ Given samples 
+\begin_inset Formula $(x_{1},...,x_{n})$
+\end_inset
+
+ and 
+\begin_inset Formula $(y_{1},...,y_{n})$
+\end_inset
+
+,
+ it is defined by:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\eta^{2}=\frac{\sum_{j=1}^{k}n_{j}(\bar{y_{j}}-\bar{y})^{2}}{\sum_{i=1}^{n}(y_{i}-\bar{y})^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+,
+ where
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $k$
+\end_inset
+
+ is the number of categories in the variable 
+\begin_inset Formula $X$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $n_{j}$
+\end_inset
+
+ is the number of observations in category 
+\begin_inset Formula $j$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\bar{y}$
+\end_inset
+
+ is the overall mean
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $y_{j}$
+\end_inset
+
+ is the mean of category 
+\begin_inset Formula $j$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\eta^{2}$
+\end_inset
+
+ takes values in 
+\begin_inset Formula $[0,1]$
+\end_inset
+
+.
+ A value of 
+\begin_inset Formula $0$
+\end_inset
+
+ indicates no relationship and a value of 
+\begin_inset Formula $1$
+\end_inset
+
+ indicates that all the variance in 
+\begin_inset Formula $Y$
+\end_inset
+
+ is explained by 
+\begin_inset Formula $X$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+The Cramér's V statistic
+\end_layout
+
+\begin_layout Standard
+The Cramér's 
+\begin_inset Formula $V$
+\end_inset
+
+ statistic (Wikipedia contributors (2025)) estimates the strength of association between two categorical variables 
+\begin_inset Formula $X$
+\end_inset
+
+ and 
+\begin_inset Formula $Y$
+\end_inset
+
+.
+ It is based on the 
+\begin_inset Formula $\chi^{2}$
+\end_inset
+
+ test statistic (the 
+\begin_inset Formula $\chi^{2}$
+\end_inset
+
+ test is a test for determining whether two categorical variables are independent).
+ Given samples 
+\begin_inset Formula $(x_{1},...,x_{n})$
+\end_inset
+
+ and 
+\begin_inset Formula $(y_{1},...,y_{n})$
+\end_inset
+
+,
+ it is defined by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+V=\sqrt{\frac{\chi^{2}}{n(k-1)}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+,
+ where
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\chi^{2}$
+\end_inset
+
+ is the test statistic in the 
+\begin_inset Formula $\chi^{2}$
+\end_inset
+
+ test
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $k=min(r,c)$
+\end_inset
+
+ where 
+\begin_inset Formula $r$
+\end_inset
+
+ is the number of rows and 
+\begin_inset Formula $c$
+\end_inset
+
+ is the number of columns in the contingency table for the 
+\begin_inset Formula $\chi^{2}$
+\end_inset
+
+ test.
+\end_layout
+
+\begin_layout Subsubsection
+The Durbin-Watson test
+\end_layout
+
+\begin_layout Standard
+The Durbin-Watson test (Wikipedia contributors (2025)) is a statistical test for autocorrelation in the residuals of a linear model.
+ Autocorrelation implies that the residuals are not independent.
+ The null hypothesis of this test is that there is no autocorrelation.
+\end_layout
+
+\begin_layout Subsubsection
+The Shapiro-Wilk test
+\end_layout
+
+\begin_layout Standard
+The Shapiro-Wilk (Wikipedia contributors (2025)) test is a statistical test for whether sample data came from a normal distribution.
+ The null hypothesis for this test is that the data came from a normal distribution.
+\end_layout
+
+\begin_layout Subsubsection
+The Breusch-Pagan test
+\end_layout
+
+\begin_layout Standard
+The Breusch-Pagan test (Wikipedia contributors (2025)) is a statistical test for detecting heteroscedasticity in the residuals of a linear model.
+ The null hypothesis for this test is that there is no heteroscedasticity.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Method
+\end_layout
+
+\begin_layout Standard
+The following steps have been taken:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Data collection
+\end_layout
+
+\begin_layout Enumerate
+Data cleaning
+\end_layout
+
+\begin_layout Enumerate
+Splitting into train,
+ validation and test data
+\end_layout
+
+\begin_layout Enumerate
+Exploratory data analysis
+\end_layout
+
+\begin_layout Enumerate
+Modeling for inference
+\end_layout
+
+\begin_layout Enumerate
+Modeling for prediction
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We will now account for each of these steps in more detail.
+\end_layout
+
+\begin_layout Subsection
+Data collection
+\end_layout
+
+\begin_layout Standard
+We collected ads from the website Blocket (https://www.blocket.se).
+ A group of about 12 people (including myself) collected about a hundred ads each and an excel file of observations was created.
+ The datacollection workload was divided up by in which region of Sweden the car was offered for sale.
+ The following restrictions were applied
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The make of the car had to be Wolksvagen
+\end_layout
+
+\begin_layout Enumerate
+The model year could be no earlier than the year 2000
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+All in all,
+ the data collection went well and no major problems occurred.
+\end_layout
+
+\begin_layout Subsection
+Data cleaning
+\end_layout
+
+\begin_layout Standard
+The data was read into R and the following cleaning measures were taken:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Spelling errors were corrected.
+\end_layout
+
+\begin_layout Enumerate
+Capitalization was applied to categorical variables in order to ensure consistency.
+\end_layout
+
+\begin_layout Enumerate
+Spaces and commas were removed from numerical variables.
+\end_layout
+
+\begin_layout Enumerate
+Some of the numerical variables included units,
+ which were removed.
+\end_layout
+
+\begin_layout Enumerate
+Some observations had color values in the model column.
+ These observations were removed.
+\end_layout
+
+\begin_layout Enumerate
+Any observation with null values in a column was removed.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Before cleaning,
+ there were 1204 observations in the dataset.
+ After cleaning,
+ there were 1193.
+\end_layout
+
+\begin_layout Subsection
+Splitting into train,
+ validation,
+ and test data
+\end_layout
+
+\begin_layout Standard
+We shuffled the dataset and then used 70% of it for training,
+ 15% for validation and 15% for test.
+ This gives the following cardinalities for each of the datasets:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Dataset
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cardinality
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Percentage
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Training
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+835
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+70
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Validation
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+178
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Test
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+180
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.1:
+ Cardinality of datasets
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Exploratory data analysis
+\end_layout
+
+\begin_layout Standard
+Both univariate and multivariate exploration was performed.
+ We now account for each of these:
+\end_layout
+
+\begin_layout Subsubsection
+Univariate- and target interaction analysis
+\end_layout
+
+\begin_layout Standard
+Here we describe the analysis made for the variables that were chosen for the final regression model.
+ Extensive analysis and transformations were performed for the other variables as well but we won't go into it here.
+\end_layout
+
+\begin_layout Subsubsection*
+Försäljningspris
+\end_layout
+
+\begin_layout Standard
+This is the target variable for the regression.
+ Plots of the distribution for this variable can be seen in Figure 3.4.4.1 below
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-4-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.1:
+ Distribution plots for Försäljningspris
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As can be seen,
+ there is skewness in the distribution and there is an extreme outlier.
+ This outlier was removed and the variable was log-tranformed.
+ The result of these actions can be seen in figure 3.4.4.2 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-5-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.2:
+ Distribution plots for Försäljningspris after transformations
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Miltal
+\end_layout
+
+\begin_layout Standard
+Plots of the distribution for this variable can be seen in Figure 3.4.4.3 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-6-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.3:
+ Distribution plots for Miltal
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There is an extreme outlier,
+ which was removed.
+ The updated plot can be seen in Figure 3.4.4.4 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-7-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.4:
+ Distribution plots for Miltal after transformation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We also examined the interaction of Miltal and Försäljningspris (Figure 3.4.4.5 below):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-8-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.5:
+ Interaction plot for Miltal and Försäljningspris
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here we see that the relationship is non-linear.
+\end_layout
+
+\begin_layout Subsubsection*
+Modellår
+\end_layout
+
+\begin_layout Standard
+below are the plots for the variable Modellår:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-9-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.6:
+ Distribution plots for Modellår
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-10-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.7:
+ Interaction plot for Modellår and Försäljningspris
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There are two things to notice here:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+There seem to be only a few observations from before 2011.
+ We checked that this was indeed the case (only one hundred observations for ten years worth of prices) and because of this we kept only observations where Modellår was no smaller than 2011
+\end_layout
+
+\begin_layout Enumerate
+There is some non-linearity in the relationship between Modellår and Försäljningspris
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Hästkrafter (HK)
+\end_layout
+
+\begin_layout Standard
+Below are the plots for the variable Hästkrafter (HK):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-14-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.8:
+ Distribution plots for Hästkrafter (HK)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-15-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.9:
+ Interaction plot for Hästkrafter (HK) and Försäljningspris
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The distribution plots looks acceptable but once again,
+ the relationship between predictor and target is non-linear.
+\end_layout
+
+\begin_layout Subsubsection*
+Växellåda
+\end_layout
+
+\begin_layout Standard
+Växellåda is a categorical variable (Manuell/Automat) but we can still plot the distribution and target interactions:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-21-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.10:
+ Distribution plot for Växellåda
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-21-2.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.11:
+ Interaction plot for Växellåda and Försäljningspris
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This looks good.
+ The imbalance isn't too severe and there is a clear difference in means of Försäljningspris for the two categories.
+\end_layout
+
+\begin_layout Subsubsection
+Multivariate analysis
+\end_layout
+
+\begin_layout Standard
+For the multivariate analysis,
+ we created an association matrix which can be seen in figure 3.4.2.1 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-29-1.png
+	lyxscale 10
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.4.4.11:
+ Association matrix for all variables
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here,
+ the numbers are calculated as follows:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+When comparing a numerical variable to a numerical variable,
+ we use the ordinary Pearson correlation coefficient.
+\end_layout
+
+\begin_layout Enumerate
+When comparing a numerical variable to a categorical variable,
+ we use the 
+\begin_inset Formula $\eta^{2}$
+\end_inset
+
+ statistic.
+\end_layout
+
+\begin_layout Enumerate
+When comparing two categorical variables,
+ we use the Cramér's V statistic.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+From the matrix,
+ we note the following:
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The variables most associated with Försäljningspris are Modellår,
+ Miltal,
+ Hästkrafter (HK) and Växellåda
+\end_layout
+
+\begin_layout Enumerate
+Miltal and Modellår are highly correlated
+\end_layout
+
+\begin_layout Subsection
+Modeling for inference
+\end_layout
+
+\begin_layout Subsubsection
+Feature selection
+\end_layout
+
+\begin_layout Standard
+Following Occam's Razor,
+ we started by selecting only features with an absolute association value larger than 
+\begin_inset Formula $0.3$
+\end_inset
+
+.
+ This resulted in the following chosen variables:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Modellår
+\end_layout
+
+\begin_layout Enumerate
+Miltal
+\end_layout
+
+\begin_layout Enumerate
+Hästkrafter (HK)
+\end_layout
+
+\begin_layout Enumerate
+Växellåda
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With this decision,
+ we expected to run into multicorrelation problems,
+ especially since there is a strong correlation between Miltal and Modellår.
+ It turns out that we had a stroke of luck and obtained very good results with this combination of features.
+ So good,
+ in fact,
+ that we decided to not proceed any further with the feature selection.
+\end_layout
+
+\begin_layout Subsubsection
+Model fitting
+\end_layout
+
+\begin_layout Standard
+We scaled the numerical variables and fitted a linear model using basis-splines of different degrees for some of the numerical variables.
+ The best results occurred when using splines of degree 3 for Modellår and Hästkrafter (HK).
+ No splines were needed for Miltal.
+ We then proceeded to check VIF values.
+ These can be seen in Figure 3.5.2.1 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Images/vif.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.1:
+ VIF values for the fitted model
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We then proceeded to plot the histogram of residuals.
+ The results can be seen in Figure 3.5.2.2 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-32-1.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.2:
+ Histogram of residuals for the model
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here we see that there seems to be a single observation that kills the symmetry of the histogram.
+ We located this observation (Figure 3.5.2.3):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Images/outlier.png
+	lyxscale 10
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.3:
+ A problem observation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is a SUV from 2022 with very low Miltal and extremely low price.
+ This is likely a typo.
+ We deem this observation to be a true outlier that needs to be removed from the training data.
+ After removal and retraining,
+ the histogram of residuals looks as follows (Figure 3.5.2.4):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-36-1.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.4:
+ Histogram of residuals for the model after removal
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This looks nice and symmetric,
+ perhaps even normally distributed.
+ The next step was to inspect the residuals vs fitted plot (Figure 3.5.2.5):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-37-1.png
+	lyxscale 10
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.5:
+ Residuals vs fitted plot
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This plot looks like it is supposed to.
+ A random cloud with no discernible patterns and a mean that looks close to zero.
+ To confirm,
+ we ran a Durbin-Watson test for autocorelation and calculated the mean residual.
+ The results can be seen in figure 3.5.2.6 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Images/dbw.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.6:
+ Output of Durbin-Watson test and mean residual calculation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This confirms what we saw in the plot.
+ There is no autocorrelation and the mean residual is very close to zero.
+ There were three flagged observations in the residuals vs fitted plot.
+ We examined these and none of them warranted removal,
+ so we kept them.
+ Next,
+ we inspected the Q-Q plot (Figure 3.5.2.7) to asses normality:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-40-1.png
+	lyxscale 10
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.7:
+ Q-Q plot
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This plot suggests mild non-normality of the residuals.
+ To confirm,
+ we ran a Shapiro-Wilk normality test on the residuals.
+ The result can be seen in Figure 3.5.2.8 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Images/sw.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.8:
+ Result of Shapiro-Wilk test
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This confirms what we thought when looking at the Q-Q plot.
+ The null hypothesis that the residuals are normally distributed is rejected.
+ Since we have about 800 observations in the training data,
+ the central limit theorem will work it's magic and this is likely not a problem for inference but we must acknowledge that any confidence intervals and p-values are non-exact.
+ Next,
+ we examined the Scale-Location plot (Figure 3.5.2.9):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-42-1.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.9:
+ Scale-location plot
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There is a slight U-shape present,
+ indicating heteroscedasticity.
+ To confirm,
+ we ran a studentized Breusch-Pagan test,
+ the output of which can be seen in Figure 3.5.2.10 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Images/sdp.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.10:
+ Output of studentized Breusch-Pagan test
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This confirms that there is indeed heteroscedasticity in the residuals.
+ We will therefore use robust standard errors when we proceed to inferencing.
+ Next,
+ we inspected the Residuals vs leverage plot (figure 3.5.2.11):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-44-1.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.11:
+ Residuals vs leverage plot
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This looks reasonable.
+ No major leverage points.
+ The next step was to do the actual inferencing.
+ To achieve this we calculate:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+t-statistics and p-values for the coefficients using robust standard errors
+\end_layout
+
+\begin_layout Enumerate
+the F-statistic using robust standard errors
+\end_layout
+
+\begin_layout Enumerate
+confidence intervals for the coefficients using robust standard errors
+\end_layout
+
+\begin_layout Enumerate
+The 
+\begin_inset Formula $R^{2}$
+\end_inset
+
+ and adjusted 
+\begin_inset Formula $R^{2}$
+\end_inset
+
+ for the model
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The result is displayed in figure 3.5.2.12 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Images/inferencing.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.12:
+ Inferencing output
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We also tested the splined variables as a whole for significance.
+ The output of that test is shown in figure 3.5.2.13 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Images/stest_splined.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.13:
+ Significance tests for splined variables
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Moreover,
+ we created marginal effect plots for each of the predictors:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-47-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.14:
+ Marginal effect plot for Modellår
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-47-2.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.15:
+ Marginal effect plot for Miltal
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-47-3.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.16:
+ Marginal effect plot for Hästkrafter (HK)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-47-4.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.17:
+ Marginal effect plot for Växellåda
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finally,
+ we calculated the partial 
+\begin_inset Formula $R^{2}$
+\end_inset
+
+ for each predictor to get a sense of the effect size of each variable (figure 3.5.2.18)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Images/pr2.png
+	lyxscale 10
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.5.2.18:
+ Partial 
+\begin_inset Formula $R^{2}$
+\end_inset
+
+for the predictors
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Modelling for prediction
+\end_layout
+
+\begin_layout Standard
+To examine the predictive power of our linear model,
+ we predicted the validation data using our chosen model and a model without Miltal (since it had high correlation with Modellår).
+ We calculated a 
+\begin_inset Quotes eld
+\end_inset
+
+naive RMSE
+\begin_inset Quotes erd
+\end_inset
+
+ for a model that simply predicts the mean of the target.
+ We then calculated the RMSE and RMSE/mean_target for both of the models.
+ The output of all these operations can be seen in figure 3.6.1 below.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="3">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Mode
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RMSE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RMSE/mean_target
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Naive Model
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+100669.96
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.6
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Chosen linear model
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+33307.78
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.2
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Linear model without Miltal
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+40644.03
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.24
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.6.1:
+ Validation metrics for different models
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Having chosen the final model (the linear model with Miltal included) we retrained it on the combined training- and validation data and then evaluated it on the test data to get an unbiased estimate of the performance metrics.
+ We got a RMSE of 38149.55 and a RMSE/mean_target of 0.2.
+ We also calculated prediction intervals by bootstrapping the combined training- and validation data 1000 times and then evaluating on the test set.
+ We then plotted the true response values against the mean of predictions and the prediction intervals (figure 3.6.2):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-58-1.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.6.3:
+ Prediction intervals
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next,
+ we plotted the true responsse values values against the relative interval width (Interval width / mean prediction) (figure 3.6.4):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename main_files/figure-html/unnamed-chunk-58-2.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.6.4:
+ Relative width of prediction intervals
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finally,
+ to compare the performance of a simple linear regression model to a more complex and powerful model,
+ we first trained an Xgboost regressor on the dataset with only the variables chosen for the linear model,
+ and then with all the available variables.
+ The metrics involved can be seen in figure 3.6.5 below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+alignment center
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="1">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="3">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Mode
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RMSE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RMSE/mean_target
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Xgboost with restricted number of variables
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+43651.12
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.23
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Xgboost with all variables
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+36089.65
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.19
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" toplineltrim="true" toplinertrim="true" bottomlineltrim="true" bottomlinertrim="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Figure 3.6.5:
+ test metrics for different Xgboost models
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Results
+\end_layout
+
+\begin_layout Subsection
+Modelling for inference
+\end_layout
+
+\begin_layout Standard
+Figure 3.5.2.12 and 3.5.2.13 above show that the coefficients for all variables have the highest three-star significance whether we consider the splined variables separately or as a whole.
+ As can be expected,
+ and seen from inspecting figure 3.5.2.14 - 3.5.2.17 above,
+ we can draw the following conclusions:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Modellår has an increasing effect on Försäljningspris
+\end_layout
+
+\begin_layout Enumerate
+Miltal has a decreasing effect on Försäljningspris
+\end_layout
+
+\begin_layout Enumerate
+Hästkrafter (HK) has an increasing effect on Försäljningspris
+\end_layout
+
+\begin_layout Enumerate
+Växellåda Automat is associated with higher Försäljningspris than Växellåda Manuell
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In figure 3.5.2.18 we see Modellår has the strongest effect on Försäljning,
+ tightly followed by Hästkrafter (HK).
+ Miltal has a smaller effect than Modellår and Hästkrafter (HK) but still a strong one.
+ Växellåda has a more moderate effect on Försäljningspris.
+\end_layout
+
+\begin_layout Subsection
+Modelling for prediction
+\end_layout
+
+\begin_layout Standard
+Figure 3.6.1 shows that even though Miltal and Modellår are highly correlated,
+ Miltal does contribute to the performance metric for predictions,
+ as can be seen in figure 3.6.1 above.
+ It is clear from figure 3.6.2 and 3.6.3 that the model performs best when the true values of Försäljningspris are in the mid range.
+ After values of the response variable of about 400 000,
+ the width of the prediction intervals start to get quite high.
+ This is due to two things:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+There are very few observations (only 21) with Försäljningspris above 400 000
+\end_layout
+
+\begin_layout Enumerate
+We removed observations above 500 000 to get a model better suited for inference.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finally,
+ as can be seen in figure 3.6.5 above,
+ The highly capable Xgboost model actually performs slightly worse when trained on the same dataset as the chosen linear model.
+ Moreover,
+ when the Xgboost regressor is given access to all the variables,
+ it does perform better but only by a small amount.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Analysis and discussion
+\end_layout
+
+\begin_layout Standard
+At the beginning of this paper the following three research questions were asked:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Which sub collection,
+ if any,
+ of these variables significantly explain the variance in price for these ads?
+\end_layout
+
+\begin_layout Enumerate
+Can we train a linear model that predicts unsean data at an 
+\begin_inset Formula $rmse/mean(price)$
+\end_inset
+
+ of at most 0.2?
+\end_layout
+
+\begin_layout Enumerate
+Seeing as a linear model is highly biased,
+ do we see a dramatic improvement in 
+\begin_inset Formula $rmse/mean(price)$
+\end_inset
+
+ if we instead train a highly complex model,
+ such as an xgboost regressor on this data?
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For the first question,
+ here is indeed a subset of variable that significantly explain the variance of price.
+ These are:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Modellår (an increasing effect)
+\end_layout
+
+\begin_layout Enumerate
+Miltal (a decreasing effect)
+\end_layout
+
+\begin_layout Enumerate
+Hästkrafter (HK) (an increasing effect)
+\end_layout
+
+\begin_layout Enumerate
+Växellåda (automatic transmisson has higher prices)
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It is not at all surprising that these variables would have an effect on the price of a car.
+ It is,
+ however,
+ a bit surprising that so few variables account for so much of the variance in Försäljningspris.
+ The lesson learned is that sometimes less is more and Occam's razor applies.
+\end_layout
+
+\begin_layout Standard
+The answer to the second question is yes.
+ We can indeed produce a linear model that meets the metric requirement.
+ An RMSE/mean_target of 0.2 is not excellent but it's not catastrophically high either,
+ especially since the number of predictors is small and the dataset size is on the lower side.
+ The result reflects a solid balance between accuracy and interpretability.
+ 
+\end_layout
+
+\begin_layout Standard
+The third research question has a negative answer.
+ We do not see a dramatic improvement in performance when training an Xgboost model on this data.
+ This shows that when the circumstances are right,
+ a carefully crafted simple linear model can be on par with a complex black box model.
+ A simple model with high interpretability is always preferable to a black box model if the performance metrics are the same.
+\end_layout
+
+\begin_layout Standard
+The greatest takeaways from the work done are:
+\end_layout
+
+\begin_layout Enumerate
+We don't always need many predictors to get descent results
+\end_layout
+
+\begin_layout Enumerate
+We don't always need complex models to get descent results
+\end_layout
+
+\begin_layout Section
+References
+\end_layout
+
+\begin_layout Enumerate
+Statistics Sweden (2025).
+ Personbilar i trafik,
+ antal efter region,
+ ägarkategori,
+ tabellinnehåll och år.
+\end_layout
+
+\begin_layout Enumerate
+Statistics Sweden (2025).
+ Indikatorer inkomstfördelning efter region,
+ inkomstslag,
+ tabellinnehåll och år.
+\end_layout
+
+\begin_layout Enumerate
+James,
+ G.,
+ Witten,
+ D.,
+ Hastie,
+ T.
+ and Tibshirani,
+ R.
+ (2021) An Introduction to Statistical Learning:
+ With Applications in R.
+ 2nd edn.
+ New York:
+ Springer.
+\end_layout
+
+\begin_layout Enumerate
+Wikipedia contributors (2025).
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Gauss–Markov theorem"
+target "https://en.wikipedia.org/wiki/Gauss%E2%80%93Markov_theorem"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Wikipedia contributors (2025).
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Heteroskedasticity-consistent standard errors"
+target "https://en.wikipedia.org/wiki/Heteroskedasticity-consistent_standard_errors"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Wikipedia contributors (2025).
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Spline (mathematics)"
+target "https://en.wikipedia.org/wiki/Spline_(mathematics)"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Wikipedia contributors (2025).
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Pearson correlation coefficient"
+target "https://en.wikipedia.org/wiki/Pearson_correlation_coefficient"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Wikipedia contributors (2025).
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Effect size"
+target "https://en.wikipedia.org/wiki/Effect_size"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Wikipedia contributors (2025).
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Cramér's V"
+target "https://en.wikipedia.org/wiki/Cram%C3%A9r%27s_V"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Wikipedia contributors (2025).
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Durbin–Watson statistic"
+target "https://en.wikipedia.org/wiki/Durbin%E2%80%93Watson_statistic"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Wikipedia contributors (2025).
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Shapiro–Wilk test"
+target "https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Wikipedia contributors (2025).
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Breusch–Pagan test"
+target "https://en.wikipedia.org/wiki/Breusch-Pagan_test"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Theoretical questions
+\end_layout
+
+\begin_layout Subsubsection*
+Question 1
+\end_layout
+
+\begin_layout Standard
+Describe briefly what a Quantile-Quantile plot is.
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+Consider a (increasingly sorted) sample 
+\begin_inset Formula $(x_{1},...,x_{n})$
+\end_inset
+
+ from some random variable 
+\begin_inset Formula $X$
+\end_inset
+
+ with unknown distribution.
+ For each 
+\begin_inset Formula $i\in\{1,...,n\}$
+\end_inset
+
+,
+ let 
+\begin_inset Formula $q_{i}$
+\end_inset
+
+ be the 
+\begin_inset Formula $\frac{i}{n+1}$
+\end_inset
+
+-th quantile of the standard normal distribution.
+ A QQ-plot is a scatterplot of the pairs 
+\begin_inset Formula $(q_{i},x_{i})$
+\end_inset
+
+.
+ If the sample came from a normal distribution,
+ the scatterplot would be close to a straight line.
+ Hence a QQ-plot is a way to visually check if a sample came from a normal distribution.
+\end_layout
+
+\begin_layout Subsubsection*
+Question 2
+\end_layout
+
+\begin_layout Standard
+Your colleague Karin asks you the following:
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+I've heard that in machine learning,
+ the focus is on prediction,
+ whereas in statistical regression,
+ you can do both prediction and statistical inference.
+ What is meant by that?
+ Can you give any example?
+\begin_inset Quotes erd
+\end_inset
+
+.
+ 
+\emph default
+What is your answer to Karin?
+\end_layout
+
+\begin_layout Subsubsection*
+Answer 
+\end_layout
+
+\begin_layout Standard
+It is true that in machine learning,
+ the focus is on obtaining a good model for prediction.
+ But in statistical regression,
+ one is not only interested in having a model that performs well on prediction tasks.
+ One is also interested in which of the features contribute to the predicted value and by how much.
+ Suppose,
+ for instance,
+ that we had a dataset where the variable we're predicting is wages and then we have some large number of explanatory variables for each observation.
+ In machine learning we would train many models,
+ perhaps using all the variables,
+ and once we found a model that performs well on the test set,
+ we would be satisfied.
+ But in statistical regression,
+ we want to discard any variable (perhaps first name if that was a predictor) that doesn't contribute to the variance of wages in any meaningful way.
+ Moreover,
+ for the variables that remain,
+ we want to estimate the relative contribution between variables.
+ Does level of education contribute more to the variance of wages than age,
+ or is it the other way around?
+ If the model assumptions are satisfied,
+ one can answer such questions using statistical analysis.
+ As a side note,
+ there is a concept in machine learning called explainability which entails some of the elements of statistical regression/learning but it lacks the same rigor that is present in statistical learning.
+ An example of where explainability is needed is if a bank has a machine learning model for predicting whether a customer will default on a loan.
+ If the bank denies the loan,
+ then it needs to be able to explain why the model made the prediction that it made.
+\end_layout
+
+\begin_layout Subsubsection*
+Question 3
+\end_layout
+
+\begin_layout Standard
+What is the difference between confidence intervals and prediction intervals for predicted values?
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+Consider a (multiple) linear model 
+\begin_inset Formula $y=\epsilon+\beta_{0}+\sum_{i=1}^{n}\beta_{i}x_{i}$
+\end_inset
+
+.
+ A confidence interval for a prediction 
+\begin_inset Formula $\hat{y}$
+\end_inset
+
+ only takes into account the uncertainty in the estimation of the coefficients 
+\begin_inset Formula $\beta_{i}$
+\end_inset
+
+,
+ whereas a prediction interval takes into account both the uncertainty in the estimation of the coefficients and the uncertainty in the noise variable 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+.
+ Prediction intervals are therefore always at least as wide as,
+ and often wider than confidence intervals.
+\end_layout
+
+\begin_layout Subsubsection*
+Question 4
+\end_layout
+
+\begin_layout Standard
+The multiple linear regression model may be written as 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+Y=\beta_{0}+\beta_{1}x_{1}+\beta_{2}x_{2}+...+\beta_{p}x_{p}+\epsilon
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+How are the parameters interpreted?
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+Geometrically,
+ the equation can be interpreted as a 
+\begin_inset Formula $p-1$
+\end_inset
+
+ dimensional hyper plane in 
+\begin_inset Formula $p$
+\end_inset
+
+-dimensional euclidean space.
+ The 
+\begin_inset Formula $\beta_{0}$
+\end_inset
+
+ coefficient is the 
+\begin_inset Formula $Y$
+\end_inset
+
+-value where the hyper plane intersects the 
+\begin_inset Formula $Y$
+\end_inset
+
+-axis.
+ The other coefficients can be interpreted as the slopes of the hyper plane along the coordinate axes.
+ For a non-geometrical interpretation,
+ 
+\begin_inset Formula $\beta_{0}$
+\end_inset
+
+ can be considered a base value and then the other 
+\begin_inset Formula $\beta_{i}$
+\end_inset
+
+ can be interpreted as:
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+If we keep all other variables 
+\begin_inset Formula $x_{j\neq i}$
+\end_inset
+
+ fixed and increase 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+ by one unit,
+ then 
+\begin_inset Formula $Y$
+\end_inset
+
+ is increased by 
+\begin_inset Formula $\beta_{i}$
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection*
+Question 5
+\end_layout
+
+\begin_layout Standard
+Your colleague Nils asks you the following:
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+Is it true that in statistical regression modelling,
+ one doesn't have to use training,
+ validation and test sets if one uses measures such as BIC?
+ What's the logic behind this?
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\emph default
+What is your answer to Hassan?
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+At the risk of offending Nils by giving Hassan the answer instead of Nils,
+ I would say the following:
+ It is not a hundred percent true,
+ but there is a grain of truth to it.
+ For instance,
+ in the limit,
+ as the number of training observations tend to infinity,
+ AIC produces the same value as leave-one-out cross validation,
+ and BIC also exhibits some nice asymptotic properties.
+ But there are alot of caveats and assumptions involved and it is definitely sample size dependent.
+ Therefore,
+ since computing power is not a problem nowadays,
+ train-val-test or cross validation is a more attractive alternative.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Question 6
+\end_layout
+
+\begin_layout Standard
+Explain the algorithm for best subset selection.
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+The best subset selection algorithm is a brute force algorithm for selecting which predictors (if any) to include in a model.
+ Given 
+\begin_inset Formula $p$
+\end_inset
+
+ available predictors and some integer 
+\begin_inset Formula $k\in\{1,...,p\}$
+\end_inset
+
+ there are clearly 
+\begin_inset Formula ${p \choose k}$
+\end_inset
+
+ distinct 
+\begin_inset Formula $k$
+\end_inset
+
+-combinations of predictors.
+ Each these combinations corresponds to one model that utilizes these predictors for training.
+ For each 
+\begin_inset Formula $k$
+\end_inset
+
+,
+ there is at least one model,
+ say 
+\begin_inset Formula $\mathcal{M}_{k},$
+\end_inset
+
+ which has the largest 
+\begin_inset Formula $R^{2}$
+\end_inset
+
+ among the 
+\begin_inset Formula $k$
+\end_inset
+
+-combinations.
+ In the set 
+\begin_inset Formula $\{\mathcal{M}_{0},...,\mathcal{M}_{p}\}$
+\end_inset
+
+,
+ where 
+\begin_inset Formula $\mathcal{M}_{0}$
+\end_inset
+
+ is the naive model predicting the mean response,
+ there is at least one model 
+\begin_inset Formula $\mathcal{M}_{best}$
+\end_inset
+
+ with the best generalization ability,
+ as measured by some appropriate metric or procedure.
+ The best subset selection algorithm simply searches through the entire search space to find 
+\begin_inset Formula $\mathcal{M}_{best}$
+\end_inset
+
+.
+ For each 
+\begin_inset Formula $k\in\{1,...,p\}$
+\end_inset
+
+,
+ 
+\begin_inset Formula ${p \choose k}$
+\end_inset
+
+ models are considered.
+ Including the naive model 
+\begin_inset Formula $\mathcal{M}_{0}$
+\end_inset
+
+,
+ we can use the binomial theorem to calculated the total number 
+\begin_inset Formula $m$
+\end_inset
+
+ of models considered as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+m=1+\sum_{k=1}^{p}{p \choose k}=\sum_{k=0}^{p}{p \choose k}=2^{p}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Hence the best subset selection algorithm has exponential time complexity,
+ making it unfeasible except for when the number of predictors,
+ 
+\begin_inset Formula $p$
+\end_inset
+
+,
+ is small.
+\end_layout
+
+\begin_layout Subsubsection*
+Question 7
+\end_layout
+
+\begin_layout Standard
+The following is a quote from the statistician George Box:
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+All models are wrong,
+ some are useful
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Explain the meaning of that quote.
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+The quote means that any statistical model is merely an approximation of the phenomena it aims to model.
+ Some approximations are closer to reality than others and therefore they are useful.
+ The linear regression model is an example of a statistical model which can be useful if the underlying relationship between predictors and response is approximately linear.
+ The quote is not only true of statistical models,
+ however.
+ In physics,
+ Newton's model of gravity as a force between objects with mass was useful enough to take us to the moon.
+ But it was ultimately wrong,
+ since it cannot account for the observations of the orbit of Mecury around the sun.
+ For that we need the general theory of relativity,
+ which models gravity,
+ not as a force but as geodetic paths on a Lorentzian space-time Manifold,
+ the curvature of which,
+ is determined by objects with mass and vice versa in the sense that space-time tells mass how to move and mass tells space-time how to bend.
+ This model is even more useful than the Newtonian one,
+ but ultimately,
+ probably wrong too since it is incompatible with quantum mechanics and breaks down in singularities (black holes,
+ big bang).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Self evaluation
+\end_layout
+
+\begin_layout Subsubsection*
+Question 1
+\end_layout
+
+\begin_layout Standard
+What has been the most fun in this assignment?
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+The most interesting part was handling the problems that occurred,
+ such as non-normality and heteroscedasticity
+\end_layout
+
+\begin_layout Subsubsection*
+Question 2
+\end_layout
+
+\begin_layout Standard
+How have you handled challenges?
+ What are the lessons learned?
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+I've handled challgenges by not giving up and by searching for the information that I need to solve the problems.
+\end_layout
+
+\begin_layout Subsubsection*
+Question 3
+\end_layout
+
+\begin_layout Standard
+Which grade do you think you deserve and why?
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+I think I deserve VG because I fullfil each of the criteria for that grade.
+\end_layout
+
+\begin_layout Subsubsection*
+Question 4
+\end_layout
+
+\begin_layout Standard
+Anything you want to bring up with Antonio?
+\end_layout
+
+\begin_layout Subsubsection*
+Answer
+\end_layout
+
+\begin_layout Standard
+No.
+\end_layout
+
+\end_body
+\end_document

@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Andreas Rasmusson">
+
+<title>Linear Regression</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="main_files/libs/clipboard/clipboard.min.js"></script>
+<script src="main_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="main_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="main_files/libs/quarto-html/popper.min.js"></script>
+<script src="main_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="main_files/libs/quarto-html/anchor.min.js"></script>
+<link href="main_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="main_files/libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="main_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="main_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="main_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Linear Regression</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Andreas Rasmusson </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="imports" class="level2">
+<h2 class="anchored" data-anchor-id="imports">Imports</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">'code/data_fetch.R'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">'code/data_cleaning.R'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span> (<span class="st">'code/plotting.R'</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">'code/transforms.R'</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">'code/helper_functions.R'</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rpart)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(correlation)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggeffects)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sandwich)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(splines)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(recipes)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xgboost)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>First, we create the plots for the introduction</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_line</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  time_series,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'num_private_cars'</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Total Number Of Privately Owned Cars'</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Number Of Privately Owned Cars Over Time'</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_line</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  time_series,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'population'</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Population'</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Population Over Time'</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-2-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_line</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  time_series,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'median_inc_tkr'</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Median Yearly Income (kSEK)'</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Median Yearly Income Over Time'</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-2-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>NULL</code></pre>
+</div>
+</div>
+</section>
+<section id="train-val-test-splitting" class="level2">
+<h2 class="anchored" data-anchor-id="train-val-test-splitting">Train, Val, Test splitting</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">copy</span>(clean_car_data) </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>train_frac <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>val_frac <span class="ot">&lt;-</span> <span class="fl">0.15</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>test_frac <span class="ot">&lt;-</span> <span class="fl">0.15</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">sample_frac</span>(<span class="dv">1</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(df)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>train_idx <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">floor</span>(train_frac <span class="sc">*</span> n)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>val_idx <span class="ot">&lt;-</span> (<span class="fu">max</span>(train_idx) <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(<span class="fu">max</span>(train_idx) <span class="sc">+</span> <span class="fu">floor</span>(val_frac <span class="sc">*</span> n))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>test_idx <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="fu">c</span>(train_idx, val_idx))</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> df[train_idx, ]</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>val_set <span class="ot">&lt;-</span> df[val_idx, ]</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>test_set <span class="ot">&lt;-</span> df[test_idx, ]</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>train_set</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>val_set</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>test_set</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<section id="univariate--and-target-interaction-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="univariate--and-target-interaction-analysis">Univariate- and target interaction Analysis</h3>
+<section id="numerical-variables" class="level4">
+<h4 class="anchored" data-anchor-id="numerical-variables">Numerical variables</h4>
+<section id="försäljningspris" class="level5">
+<h5 class="anchored" data-anchor-id="försäljningspris">Försäljningspris</h5>
+<p>Let’s look at the distribution of values</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_column</span>(train_set,<span class="st">'Försäljningspris'</span>,<span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>That doesn’t look too nice. Let’s find the extreme outlier and remove it (It’s a rally car,so it’s reasonable to remove that observation). Log transforming the target will also help.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> train_set <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    Försäljningspris <span class="sc">&lt;</span> <span class="dv">500000</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    Försäljningspris <span class="ot">=</span> <span class="fu">log</span>(Försäljningspris)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_column</span>(train_set,<span class="st">'Försäljningspris'</span>,<span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="miltal" class="level5">
+<h5 class="anchored" data-anchor-id="miltal">Miltal</h5>
+<p>Let’s have a look at the distribution</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_column</span>(train_set,<span class="st">'Miltal'</span>,<span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here too is an extreme outlier. The price associated with it about 36000 so it will mess with the regression if we keep it.Let’s remove it</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> train_set <span class="sc">|&gt;</span> <span class="fu">filter</span>(Miltal <span class="sc">&lt;</span> <span class="dv">50000</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_column</span>(train_set,<span class="st">'Miltal'</span>,<span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Let’s check how it interacts with the target</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_target_interaction</span>(train_set,<span class="st">'Miltal'</span>,<span class="st">'Försäljningspris'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This clear relationship is somewhat nonlinear. We may have to use splines splines for this feature.</p>
+</section>
+<section id="modellår" class="level5">
+<h5 class="anchored" data-anchor-id="modellår">Modellår</h5>
+<p>Let’s have a look at the distribution.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_column</span>(train_set,<span class="st">'Modellår'</span>,<span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Looks pretty good. Let’s check how it interacts with the target</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_target_interaction</span>(train_set,<span class="st">'Modellår'</span>,<span class="st">'Försäljningspris'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This variable too shows some nonlinearity. Moreover, judging by the plot, there seems to be rather few observations before 2010. Let’s check this.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="sc">|&gt;</span> <span class="fu">filter</span>(Modellår <span class="sc">&lt;=</span> <span class="dv">2010</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 111 × 12
+   Försäljningspris Säljare Bränsle    Växellåda Miltal Modellår Biltyp Drivning
+              &lt;dbl&gt; &lt;fct&gt;   &lt;fct&gt;      &lt;fct&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;   
+ 1             9.39 Privat  Bensin     Manuell    28027     2001 Halvk… Tvåhjul…
+ 2            11.1  Privat  Diesel     Manuell    23298     2008 SUV    Fyrhjul…
+ 3            10.1  Privat  Miljöbrän… Manuell    21166     2007 Famil… Tvåhjul…
+ 4             9.77 Privat  Bensin     Manuell    17034     2007 Halvk… Tvåhjul…
+ 5             9.90 Privat  Bensin     Manuell    16900     2006 Halvk… Tvåhjul…
+ 6            10.9  Företag Bensin     Manuell    16598     2009 Halvk… Tvåhjul…
+ 7            10.8  Företag Bensin     Manuell     7184     2000 Halvk… Tvåhjul…
+ 8             9.21 Privat  Bensin     Manuell    29214     2000 Halvk… Tvåhjul…
+ 9             9.39 Privat  Diesel     Automat    25660     2010 Kombi  Tvåhjul…
+10             9.90 Företag Bensin     Manuell    25031     2006 Halvk… Fyrhjul…
+# ℹ 101 more rows
+# ℹ 4 more variables: `Hästkrafter (HK)` &lt;dbl&gt;, Färg &lt;fct&gt;, Modell &lt;fct&gt;,
+#   Region &lt;fct&gt;</code></pre>
+</div>
+</div>
+<p>Only about 100 observations to cover ten years worth of Försäljningspris. That’s a small proportion of the data to cover almost half of the number of years in the data. We will probably get a better model if we lower our ambitions and restrict the data to contain only observations with modellår no less than 2011.<br>
+</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> train_set <span class="sc">|&gt;</span> <span class="fu">filter</span>(Modellår <span class="sc">&gt;</span> <span class="dv">2010</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s plot target interaction again</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_target_interaction</span>(train_set,<span class="st">'Modellår'</span>,<span class="st">'Försäljningspris'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Still some linearity but better than before.</p>
+</section>
+<section id="hästkrafter-hk" class="level5">
+<h5 class="anchored" data-anchor-id="hästkrafter-hk">Hästkrafter (HK)</h5>
+<p>Looking at the distribution</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_column</span>(train_set,<span class="st">'Hästkrafter (HK)'</span>,<span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There are a few outliers here but they are probably informative. We keep them for now. Let’s check the interaction with the target.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_numerical_target_interaction</span>(train_set,<span class="st">'Hästkrafter (HK)'</span>,<span class="st">'Försäljningspris'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This feature is non-linear. Splines will have to be used.</p>
+</section>
+</section>
+<section id="categorical-variables" class="level4">
+<h4 class="anchored" data-anchor-id="categorical-variables">Categorical variables</h4>
+<section id="bränsle" class="level5">
+<h5 class="anchored" data-anchor-id="bränsle">Bränsle</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_column</span>(train_set,<span class="st">'Bränsle'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El is a rare category.Let’s see if it has a significantly different Försäljningspris</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> Bränsle, <span class="at">data =</span> train_set)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(model, pairwise <span class="sc">~</span> Bränsle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$emmeans
+ Bränsle             emmean     SE  df lower.CL upper.CL
+ Bensin               12.00 0.0316 711    11.94    12.06
+ Diesel               12.01 0.0270 711    11.96    12.06
+ El                   12.52 0.0644 711    12.39    12.65
+ Miljöbränsle/Hybrid  12.06 0.0526 711    11.96    12.17
+
+Confidence level used: 0.95 
+
+$contrasts
+ contrast                       estimate     SE  df t.ratio p.value
+ Bensin - Diesel                -0.00791 0.0416 711  -0.190  0.9976
+ Bensin - El                    -0.51802 0.0717 711  -7.223  &lt;.0001
+ Bensin - (Miljöbränsle/Hybrid) -0.06160 0.0613 711  -1.004  0.7469
+ Diesel - El                    -0.51011 0.0698 711  -7.305  &lt;.0001
+ Diesel - (Miljöbränsle/Hybrid) -0.05369 0.0591 711  -0.908  0.8005
+ El - (Miljöbränsle/Hybrid)      0.45642 0.0831 711   5.491  &lt;.0001
+
+P value adjustment: tukey method for comparing a family of 4 estimates </code></pre>
+</div>
+</div>
+<p>It does seem like we hould keep El separate. Let’s keep see if three categories works.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> <span class="fu">high_cardinality_to_low</span>(train_set,<span class="st">'Bränsle'</span>,<span class="st">'Försäljningspris'</span>,<span class="at">desired_cardinality =</span> <span class="dv">3</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_column</span>(train_set,<span class="st">'Bränsle'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Let’s check differences in Försäljningspris distribution again.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> Bränsle, <span class="at">data =</span> train_set)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(model, pairwise <span class="sc">~</span> Bränsle)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$emmeans
+ Bränsle             emmean     SE  df lower.CL upper.CL
+ Bensin,Diesel        12.01 0.0205 712    11.97    12.05
+ El                   12.52 0.0643 712    12.39    12.65
+ Miljöbränsle/Hybrid  12.06 0.0525 712    11.96    12.17
+
+Confidence level used: 0.95 
+
+$contrasts
+ contrast                              estimate     SE  df t.ratio p.value
+ Bensin,Diesel - El                      -0.513 0.0675 712  -7.603  &lt;.0001
+ Bensin,Diesel - (Miljöbränsle/Hybrid)   -0.057 0.0564 712  -1.011  0.5700
+ El - (Miljöbränsle/Hybrid)               0.456 0.0831 712   5.495  &lt;.0001
+
+P value adjustment: tukey method for comparing a family of 3 estimates </code></pre>
+</div>
+</div>
+<p>Not quite but we’ll leave it as is for now. Let’s plot the interaction with the target</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_target_interaction</span>(train_set,<span class="st">'Bränsle'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="växellåda" class="level5">
+<h5 class="anchored" data-anchor-id="växellåda">Växellåda</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_column</span>(train_set,<span class="st">'Växellåda'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> Växellåda, <span class="at">data =</span> train_set)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(model, pairwise <span class="sc">~</span> Växellåda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$emmeans
+ Växellåda emmean     SE  df lower.CL upper.CL
+ Automat    12.22 0.0188 713    12.18    12.26
+ Manuell    11.61 0.0311 713    11.55    11.67
+
+Confidence level used: 0.95 
+
+$contrasts
+ contrast          estimate     SE  df t.ratio p.value
+ Automat - Manuell    0.611 0.0364 713  16.814  &lt;.0001</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_target_interaction</span>(train_set,<span class="st">'Växellåda'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>No problems here.</p>
+</section>
+<section id="biltyp" class="level5">
+<h5 class="anchored" data-anchor-id="biltyp">Biltyp</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_column</span>(train_set,<span class="st">'Biltyp'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There are several rare types here. Moreover, Familjebuss is a very special category and we will most probably get a better model if we stick with the more common types. Let’s see if we can reduce this to 2 distinct categories and also have significant difference in mean Försäljningspris.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> train_set <span class="sc">|&gt;</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(Biltyp <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">'Familjebuss'</span>,<span class="st">'Sedan'</span>,<span class="st">'Coupé'</span>,<span class="st">'Cab'</span>)))</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> <span class="fu">high_cardinality_to_low</span>(train_set,<span class="st">'Biltyp'</span>,<span class="st">'Försäljningspris'</span>,<span class="at">desired_cardinality =</span> <span class="dv">2</span>)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_column</span>(train_set,<span class="st">'Biltyp'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> Biltyp, <span class="at">data =</span> train_set)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(model, pairwise <span class="sc">~</span> Biltyp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$emmeans
+ Biltyp          emmean     SE  df lower.CL upper.CL
+ Halvkombi,Kombi  11.93 0.0219 652    11.89    11.98
+ SUV              12.36 0.0327 652    12.30    12.43
+
+Confidence level used: 0.95 
+
+$contrasts
+ contrast              estimate     SE  df t.ratio p.value
+ Halvkombi,Kombi - SUV   -0.431 0.0393 652 -10.968  &lt;.0001</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_target_interaction</span>(train_set,<span class="st">'Biltyp'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-23-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This looks good.</p>
+</section>
+<section id="drivning" class="level5">
+<h5 class="anchored" data-anchor-id="drivning">Drivning</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_column</span>(train_set,<span class="st">'Drivning'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> Drivning, <span class="at">data =</span> train_set)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(model, pairwise <span class="sc">~</span> Drivning)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$emmeans
+ Drivning       emmean     SE  df lower.CL upper.CL
+ Fyrhjulsdriven  12.19 0.0291 652    12.13    12.25
+ Tvåhjulsdriven  11.97 0.0258 652    11.92    12.02
+
+Confidence level used: 0.95 
+
+$contrasts
+ contrast                        estimate     SE  df t.ratio p.value
+ Fyrhjulsdriven - Tvåhjulsdriven    0.224 0.0389 652   5.763  &lt;.0001</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_target_interaction</span>(train_set,<span class="st">'Drivning'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-24-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>No problems here.</p>
+</section>
+<section id="färg" class="level5">
+<h5 class="anchored" data-anchor-id="färg">Färg</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_column</span>(train_set,<span class="st">'Färg'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This is a problematic feature. There is a high number of categories and most of them are rare. Let’s see if we can reduce the number categories to three and also have significantly different means for Försäljningspris</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> <span class="fu">high_cardinality_to_low</span>(</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  train_set,<span class="st">'Färg'</span>,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Försäljningspris'</span>,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">desired_cardinality =</span> <span class="dv">3</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> Färg, <span class="at">data =</span> train_set)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(model, pairwise <span class="sc">~</span> Färg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$emmeans
+ Färg                                                               emmean
+ Blå,Grå,Grön,Gul,Mörkblå,Mörkgrå,Mörkgrön,Mörkröd,Orange,Svart,Vit  12.15
+ Brun,Ljusgrå,Mörkbrun                                               11.52
+ Ljusblå,Ljusbrun,Röd,Silver                                         11.84
+     SE  df lower.CL upper.CL
+ 0.0217 651    12.10    12.19
+ 0.1340 651    11.25    11.78
+ 0.0405 651    11.76    11.92
+
+Confidence level used: 0.95 
+
+$contrasts
+ contrast                                                                                        
+ Blå,Grå,Grön,Gul,Mörkblå,Mörkgrå,Mörkgrön,Mörkröd,Orange,Svart,Vit - Brun,Ljusgrå,Mörkbrun      
+ Blå,Grå,Grön,Gul,Mörkblå,Mörkgrå,Mörkgrön,Mörkröd,Orange,Svart,Vit - Ljusblå,Ljusbrun,Röd,Silver
+ Brun,Ljusgrå,Mörkbrun - Ljusblå,Ljusbrun,Röd,Silver                                             
+ estimate     SE  df t.ratio p.value
+    0.629 0.1360 651   4.630  &lt;.0001
+    0.305 0.0459 651   6.644  &lt;.0001
+   -0.324 0.1400 651  -2.314  0.0545
+
+P value adjustment: tukey method for comparing a family of 3 estimates </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_target_interaction</span>(train_set,<span class="st">'Färg'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="modell" class="level5">
+<h5 class="anchored" data-anchor-id="modell">Modell</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_column</span>(train_set,<span class="st">'Modell'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Another problematic column. Let’s see if we can reduce the number of distinct categories to 3 and also also have significantly different means for Försäljningspris.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> <span class="fu">high_cardinality_to_low</span>(train_set,<span class="st">'Modell'</span>,<span class="st">'Försäljningspris'</span>,<span class="dv">3</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> Modell, <span class="at">data =</span> train_set)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(model, pairwise <span class="sc">~</span> Modell)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$emmeans
+ Modell                                            emmean     SE  df lower.CL
+ Arteon,GTI,ID.3,ID.4,T-Cross,T-Roc,Tiguan,Touareg  12.39 0.0282 651    12.34
+ Beetle,Golf,Polo,Scirocco,Touran,UP                11.77 0.0282 651    11.72
+ E-Golf,Passat                                      12.03 0.0317 651    11.96
+ upper.CL
+    12.45
+    11.83
+    12.09
+
+Confidence level used: 0.95 
+
+$contrasts
+ contrast                                                                                 
+ (Arteon,GTI,ID.3,ID.4,T-Cross,T-Roc,Tiguan,Touareg) - Beetle,Golf,Polo,Scirocco,Touran,UP
+ (Arteon,GTI,ID.3,ID.4,T-Cross,T-Roc,Tiguan,Touareg) - (E-Golf,Passat)                    
+ Beetle,Golf,Polo,Scirocco,Touran,UP - (E-Golf,Passat)                                    
+ estimate     SE  df t.ratio p.value
+    0.618 0.0399 651  15.470  &lt;.0001
+    0.367 0.0424 651   8.634  &lt;.0001
+   -0.252 0.0424 651  -5.925  &lt;.0001
+
+P value adjustment: tukey method for comparing a family of 3 estimates </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_categorical_target_interaction</span>(train_set,<span class="st">'Modell'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="multivariate-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="multivariate-analysis">Multivariate analysis</h3>
+<p>Let’s create an association plot</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">plot_association_matrix</span>(train_set)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>result<span class="sc">$</span>plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here we see that:</p>
+<ol type="1">
+<li>The variables most correlated with Försäljningspris are Modellår, Miltal, Hästkrafter (Hk) and Växellåda. Let’s be economical and use only these variables to begin with and see how far that takes us.</li>
+<li>Modellår and Miltal are highly correlated. We’ll keep them both for now and check VIF values.</li>
+</ol>
+</section>
+<section id="inference" class="level3">
+<h3 class="anchored" data-anchor-id="inference">Inference</h3>
+<p>Let’s perform scaling</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> train_set <span class="sc">|&gt;</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">mutate</span>(</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">across</span>(</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">.cols =</span> <span class="fu">where</span>(is.numeric) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">matches</span>(<span class="st">"Försäljningspris"</span>),</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">.fns =</span> <span class="sc">~</span> <span class="fu">scale</span>(.)[,<span class="dv">1</span>]</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>   )</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now let’s train the model and check VIF values</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  Försäljningspris <span class="sc">~</span> </span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bs</span>(Modellår,<span class="at">df=</span><span class="dv">3</span>)<span class="sc">+</span><span class="fu">bs</span>(<span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span>,<span class="at">df=</span><span class="dv">3</span>)<span class="sc">+</span>Växellåda<span class="sc">+</span>Miltal,   </span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> train_set</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   GVIF Df GVIF^(1/(2*Df))
+bs(Modellår, df = 3)           2.383898  3        1.155796
+bs(`Hästkrafter (HK)`, df = 3) 2.109902  3        1.132514
+Växellåda                      1.986539  1        1.409446
+Miltal                         2.129874  1        1.459409</code></pre>
+</div>
+</div>
+<p>No problems here. Let’s check the distribution of the residuals.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">residuals</span>(model), <span class="at">breaks =</span> <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here we see that there is an observations on the left that messes with the symmetry of the plot. If not for these, the histogram of residuals would look pretty normal. Let’s find out more about these.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>residuals <span class="ot">&lt;-</span> <span class="fu">residuals</span>(model)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>extreme_left <span class="ot">&lt;-</span> <span class="fu">which</span>(residuals <span class="sc">&lt;</span> threshold)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">Index =</span> extreme_left, <span class="at">Residual =</span> residuals[extreme_left])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Index  Residual
+338   338 -2.043964</code></pre>
+</div>
+</div>
+<p>Let’s have a look at observation 338</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">view_original_observation</span>(<span class="dv">338</span>,df,train_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 12
+  Försäljningspris Säljare Bränsle Växellåda Miltal Modellår Biltyp Drivning    
+             &lt;dbl&gt; &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;       
+1            31900 Företag Diesel  Automat     7860     2022 SUV    Fyrhjulsdri…
+# ℹ 4 more variables: `Hästkrafter (HK)` &lt;dbl&gt;, Färg &lt;fct&gt;, Modell &lt;fct&gt;,
+#   Region &lt;fct&gt;</code></pre>
+</div>
+</div>
+<p>This is a SUV from 2022 with a low value of 7860 on Miltal with a Försäljningspris of only 31900. Such a low price seems very unlikely for such a new car. This could possibly be due to faulty data collection. We remove this observation as it is a true outlier.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> train_set[<span class="sc">-</span><span class="dv">338</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  Försäljningspris <span class="sc">~</span> </span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bs</span>(Modellår,<span class="at">df=</span><span class="dv">3</span>)<span class="sc">+</span><span class="fu">bs</span>(<span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span>,<span class="at">df=</span><span class="dv">3</span>)<span class="sc">+</span>Växellåda<span class="sc">+</span>Miltal,   </span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> train_set</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   GVIF Df GVIF^(1/(2*Df))
+bs(Modellår, df = 3)           2.382868  3        1.155713
+bs(`Hästkrafter (HK)`, df = 3) 2.113040  3        1.132795
+Växellåda                      1.986650  1        1.409486
+Miltal                         2.128016  1        1.458772</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">residuals</span>(model), <span class="at">breaks =</span> <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now the histogram looks much better. Let’s look at residuals vs fitted</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model, <span class="at">which =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This is how we want this plot to look. A random cloud with no discernible pattern and a mean very close to zero. There are 3 observations that have been flagged. Let’s run a test for autocorrelation and check the mean of the residuals.<br>
+</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dwtest</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Durbin-Watson test
+
+data:  model
+DW = 2.074, p-value = 0.829
+alternative hypothesis: true autocorrelation is greater than 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'Mean residual value: {mean(resid(model))}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean residual value: 1.37443587157986e-17</code></pre>
+</div>
+</div>
+<p>No autocorrelation. That’s good. Let’s have a look at the three flagged observations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">view_original_observation</span>(<span class="dv">195</span>,df,train_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 12
+  Försäljningspris Säljare Bränsle Växellåda Miltal Modellår Biltyp Drivning    
+             &lt;dbl&gt; &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;       
+1           119500 Företag Diesel  Automat    20598     2014 Kombi  Fyrhjulsdri…
+2           120000 Privat  Diesel  Manuell    32925     2015 Kombi  Tvåhjulsdri…
+3           119900 Företag Diesel  Automat    17400     2014 Kombi  Fyrhjulsdri…
+# ℹ 4 more variables: `Hästkrafter (HK)` &lt;dbl&gt;, Färg &lt;fct&gt;, Modell &lt;fct&gt;,
+#   Region &lt;fct&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">view_original_observation</span>(<span class="dv">487</span>,df,train_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 12
+  Försäljningspris Säljare Bränsle Växellåda Miltal Modellår Biltyp Drivning    
+             &lt;dbl&gt; &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;       
+1            48000 Privat  Bensin  Automat    28667     2013 Kombi  Tvåhjulsdri…
+# ℹ 4 more variables: `Hästkrafter (HK)` &lt;dbl&gt;, Färg &lt;fct&gt;, Modell &lt;fct&gt;,
+#   Region &lt;fct&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">view_original_observation</span>(<span class="dv">518</span>,df,train_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 12
+  Försäljningspris Säljare Bränsle Växellåda Miltal Modellår Biltyp    Drivning 
+             &lt;dbl&gt; &lt;fct&gt;   &lt;fct&gt;   &lt;fct&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;     &lt;fct&gt;    
+1           249900 Företag El      Automat     4970     2021 Halvkombi Tvåhjuls…
+2           249900 Företag El      Automat     7590     2022 Halvkombi Tvåhjuls…
+# ℹ 4 more variables: `Hästkrafter (HK)` &lt;dbl&gt;, Färg &lt;fct&gt;, Modell &lt;fct&gt;,
+#   Region &lt;fct&gt;</code></pre>
+</div>
+</div>
+<p>None of these observations seem to stand out very much. Let’s move on the the Q-Q plot.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model, <span class="at">which =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Our three flagged observations are somewhat bothersome. Let’s run a test for normality.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(<span class="fu">residuals</span>(model))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  residuals(model)
+W = 0.98997, p-value = 0.000196</code></pre>
+</div>
+</div>
+<p>So, we have established that the normality assumption is violated, but it is in all probability due to only a few unusual but valid observations. Let’s move on to plotting the fitted values against the standardized residuals.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model, <span class="at">which =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There is a slight U-shape here suggesting some heteroscedasticity. Let’s run a test for it</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bptest</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    studentized Breusch-Pagan test
+
+data:  model
+BP = 48.274, df = 8, p-value = 8.756e-08</code></pre>
+</div>
+</div>
+<p>The test confirms that there is indeed heteroscedasticity. We therefore decide to use robust standard errors. Let’s move on to checking leverage and Cook’s distance</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model, <span class="at">which =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">cooks.distance</span>(model), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        88        528        469        195        329        456        518 
+0.06099898 0.05428909 0.04336402 0.04328699 0.04292461 0.04233089 0.03967101 
+        12         94        179 
+0.03781720 0.03752290 0.02777881 </code></pre>
+</div>
+</div>
+<p>No point exceed a Cook’s distance of 0.5, which is good. We are now ready to check the significance of the coefficients of the predictors and confidence intervals using robust standard errors and a robust F-statistic.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>vcov <span class="ot">=</span> <span class="fu">vcovHC</span>(model, <span class="at">type =</span> <span class="st">"HC1"</span>)</span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coeftest</span>(model, <span class="at">vcov =</span> vcov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+t test of coefficients:
+
+                                  Estimate Std. Error  t value  Pr(&gt;|t|)    
+(Intercept)                     10.9469895  0.0650974 168.1633 &lt; 2.2e-16 ***
+bs(Modellår, df = 3)1            0.3983820  0.0948907   4.1983 3.067e-05 ***
+bs(Modellår, df = 3)2            0.7868100  0.0438546  17.9413 &lt; 2.2e-16 ***
+bs(Modellår, df = 3)3            0.8066186  0.0526577  15.3181 &lt; 2.2e-16 ***
+bs(`Hästkrafter (HK)`, df = 3)1  0.9270175  0.1283776   7.2210 1.460e-12 ***
+bs(`Hästkrafter (HK)`, df = 3)2  0.5744170  0.0770293   7.4571 2.868e-13 ***
+bs(`Hästkrafter (HK)`, df = 3)3  1.2633866  0.1011803  12.4865 &lt; 2.2e-16 ***
+VäxellådaManuell                -0.1426279  0.0196717  -7.2504 1.195e-12 ***
+Miltal                          -0.1759534  0.0098576 -17.8496 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">waldtest</span>(model, <span class="at">vcov =</span> vcov, <span class="at">test =</span> <span class="st">"F"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Wald test
+
+Model 1: Försäljningspris ~ bs(Modellår, df = 3) + bs(`Hästkrafter (HK)`, 
+    df = 3) + Växellåda + Miltal
+Model 2: Försäljningspris ~ 1
+  Res.Df Df      F    Pr(&gt;F)    
+1    644                        
+2    652 -8 634.98 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coefci</span>(model, <span class="at">vcov =</span> vcov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     2.5 %     97.5 %
+(Intercept)                     10.8191608 11.0748182
+bs(Modellår, df = 3)1            0.2120494  0.5847147
+bs(Modellår, df = 3)2            0.7006947  0.8729253
+bs(Modellår, df = 3)3            0.7032170  0.9100201
+bs(`Hästkrafter (HK)`, df = 3)1  0.6749282  1.1791067
+bs(`Hästkrafter (HK)`, df = 3)2  0.4231581  0.7256759
+bs(`Hästkrafter (HK)`, df = 3)3  1.0647035  1.4620696
+VäxellådaManuell                -0.1812564 -0.1039994
+Miltal                          -0.1953102 -0.1565965</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>r2 <span class="ot">&lt;-</span> <span class="fu">summary</span>(model)<span class="sc">$</span>r.squared</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>adj_r2 <span class="ot">&lt;-</span> <span class="fu">summary</span>(model)<span class="sc">$</span>adj.r.squared</span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">R-squared:'</span>, <span class="fu">round</span>(r2, <span class="dv">4</span>), <span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+R-squared: 0.9134 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">'</span><span class="sc">\n</span><span class="st">Adjusted R-squared:'</span>, <span class="fu">round</span>(adj_r2, <span class="dv">4</span>), <span class="st">'</span><span class="sc">\n</span><span class="st">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Adjusted R-squared: 0.9123 </code></pre>
+</div>
+</div>
+<p>Let’s also test the splined variables as a whole for significance</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>  model,</span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'bs(Modellår, df = 3)1 = 0'</span>,</span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'bs(Modellår, df = 3)2 = 0'</span>,</span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'bs(Modellår, df = 3)3 = 0'</span></span>
+<span id="cb92-7"><a href="#cb92-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb92-8"><a href="#cb92-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb92-9"><a href="#cb92-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov =</span> vcov</span>
+<span id="cb92-10"><a href="#cb92-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Linear hypothesis test:
+bs(Modellår, df = 3)1 = 0
+bs(Modellår, df = 3)2 = 0
+bs(Modellår, df = 3)3 = 0
+
+Model 1: restricted model
+Model 2: Försäljningspris ~ bs(Modellår, df = 3) + bs(`Hästkrafter (HK)`, 
+    df = 3) + Växellåda + Miltal
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df     F    Pr(&gt;F)    
+1    647                       
+2    644  3 195.7 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>  model,</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'bs(`Hästkrafter (HK)`, df = 3)1 = 0'</span>,</span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'bs(`Hästkrafter (HK)`, df = 3)2 = 0'</span>,</span>
+<span id="cb94-6"><a href="#cb94-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'bs(`Hästkrafter (HK)`, df = 3)3 = 0'</span></span>
+<span id="cb94-7"><a href="#cb94-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb94-8"><a href="#cb94-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb94-9"><a href="#cb94-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov =</span> vcov</span>
+<span id="cb94-10"><a href="#cb94-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Linear hypothesis test:
+bs(`Hästkrafter (HK)`, df = 3)1 = 0
+bs(`Hästkrafter (HK)`, df = 3)2 = 0
+bs(`Hästkrafter (HK)`, df = 3)3 = 0
+
+Model 1: restricted model
+Model 2: Försäljningspris ~ bs(Modellår, df = 3) + bs(`Hästkrafter (HK)`, 
+    df = 3) + Växellåda + Miltal
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F    Pr(&gt;F)    
+1    647                        
+2    644  3 154.02 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Finally, let’s create marginal effect plots for each of the predictors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>train_set_renamed <span class="ot">&lt;-</span> train_set <span class="sc">|&gt;</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(Hästkrafter <span class="ot">=</span> <span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span>)</span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb96-4"><a href="#cb96-4" aria-hidden="true" tabindex="-1"></a>  Försäljningspris <span class="sc">~</span> </span>
+<span id="cb96-5"><a href="#cb96-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bs</span>(Modellår,<span class="at">df=</span><span class="dv">3</span>)<span class="sc">+</span><span class="fu">bs</span>(Hästkrafter,<span class="at">df=</span><span class="dv">3</span>)<span class="sc">+</span>Växellåda<span class="sc">+</span>Miltal,   </span>
+<span id="cb96-6"><a href="#cb96-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> train_set_renamed</span>
+<span id="cb96-7"><a href="#cb96-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb96-8"><a href="#cb96-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpredict</span>(model, <span class="st">'Modellår'</span>) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpredict</span>(model, <span class="st">'Miltal'</span>) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-47-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpredict</span>(model, <span class="st">'Hästkrafter'</span>) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-47-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpredict</span>(model, <span class="st">'Växellåda'</span>) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-47-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>)</p>
+</section>
+<section id="prediction" class="level3">
+<h3 class="anchored" data-anchor-id="prediction">Prediction</h3>
+<p>Now we turn to checking the performance of the model. For this, we need to apply the same transformations to the validation- and test sets as we did for the training set. We’ll use the recipes library for this.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(df)</span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>train_idx <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">floor</span>(train_frac <span class="sc">*</span> n)</span>
+<span id="cb100-3"><a href="#cb100-3" aria-hidden="true" tabindex="-1"></a>val_idx <span class="ot">&lt;-</span> (<span class="fu">max</span>(train_idx) <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(<span class="fu">max</span>(train_idx) <span class="sc">+</span> <span class="fu">floor</span>(val_frac <span class="sc">*</span> n))</span>
+<span id="cb100-4"><a href="#cb100-4" aria-hidden="true" tabindex="-1"></a>test_idx <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="fu">c</span>(train_idx, val_idx))</span>
+<span id="cb100-5"><a href="#cb100-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb100-6"><a href="#cb100-6" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> df[train_idx, ]</span>
+<span id="cb100-7"><a href="#cb100-7" aria-hidden="true" tabindex="-1"></a>val_set <span class="ot">&lt;-</span> df[val_idx, ]</span>
+<span id="cb100-8"><a href="#cb100-8" aria-hidden="true" tabindex="-1"></a>train_val_set <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(train_set,val_set)</span>
+<span id="cb100-9"><a href="#cb100-9" aria-hidden="true" tabindex="-1"></a>test_set <span class="ot">&lt;-</span> df[test_idx, ]</span>
+<span id="cb100-10"><a href="#cb100-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb100-11"><a href="#cb100-11" aria-hidden="true" tabindex="-1"></a>train_set <span class="ot">&lt;-</span> train_set <span class="sc">|&gt;</span> </span>
+<span id="cb100-12"><a href="#cb100-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb100-13"><a href="#cb100-13" aria-hidden="true" tabindex="-1"></a>    Försäljningspris <span class="sc">&lt;</span> <span class="dv">500000</span> <span class="sc">&amp;</span> </span>
+<span id="cb100-14"><a href="#cb100-14" aria-hidden="true" tabindex="-1"></a>    Försäljningspris <span class="sc">!=</span> <span class="dv">31900</span> <span class="sc">&amp;</span> </span>
+<span id="cb100-15"><a href="#cb100-15" aria-hidden="true" tabindex="-1"></a>    Modellår <span class="sc">&gt;</span> <span class="dv">2010</span> <span class="sc">&amp;</span> </span>
+<span id="cb100-16"><a href="#cb100-16" aria-hidden="true" tabindex="-1"></a>    Miltal <span class="sc">&lt;</span> <span class="dv">30000</span></span>
+<span id="cb100-17"><a href="#cb100-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb100-18"><a href="#cb100-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb100-19"><a href="#cb100-19" aria-hidden="true" tabindex="-1"></a>train_val_set <span class="ot">&lt;-</span> train_val_set <span class="sc">|&gt;</span> </span>
+<span id="cb100-20"><a href="#cb100-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb100-21"><a href="#cb100-21" aria-hidden="true" tabindex="-1"></a>    Försäljningspris <span class="sc">&lt;</span> <span class="dv">500000</span> <span class="sc">&amp;</span> </span>
+<span id="cb100-22"><a href="#cb100-22" aria-hidden="true" tabindex="-1"></a>    Försäljningspris <span class="sc">!=</span> <span class="dv">31900</span> <span class="sc">&amp;</span> </span>
+<span id="cb100-23"><a href="#cb100-23" aria-hidden="true" tabindex="-1"></a>    Modellår <span class="sc">&gt;</span> <span class="dv">2010</span> <span class="sc">&amp;</span> </span>
+<span id="cb100-24"><a href="#cb100-24" aria-hidden="true" tabindex="-1"></a>    Miltal <span class="sc">&lt;</span> <span class="dv">30000</span></span>
+<span id="cb100-25"><a href="#cb100-25" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Define the recipe.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Försäljningspris <span class="sc">~</span> Modellår<span class="sc">+</span><span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span><span class="sc">+</span>Växellåda<span class="sc">+</span>Miltal,<span class="at">data=</span>train_set) <span class="sc">|&gt;</span></span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_log</span>(Försäljningspris,<span class="at">base =</span> <span class="fu">exp</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_ns</span>(Modellår, <span class="at">deg_free =</span> <span class="dv">3</span>)  <span class="sc">|&gt;</span></span>
+<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_ns</span>(<span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span>,<span class="at">deg_free =</span> <span class="dv">3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Prepare the recipe</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>rec_prep <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec,<span class="at">training =</span> train_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Bake.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>train_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec_prep, <span class="at">new_data =</span> train_set)</span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>val_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec_prep,<span class="at">new_data =</span> val_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> ., <span class="at">data =</span> train_baked)</span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">predict</span>(model, <span class="at">newdata =</span> val_baked))</span>
+<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a>actual <span class="ot">&lt;-</span> <span class="fu">exp</span>(val_baked<span class="sc">$</span>Försäljningspris)</span>
+<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a>rmse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((actual <span class="sc">-</span> preds)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb104-5"><a href="#cb104-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE: {round(rmse, 2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE: 33307.78</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE naive: {round(sqrt(mean((actual-mean(actual))^2)),2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE naive: 100669.96</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE/Mean price: {round(rmse/mean(actual),2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE/Mean price: 0.2</code></pre>
+</div>
+</div>
+<p>This is a pretty nice result. As compared to the most basic model of simply predicting the mean, we get an almost 70% reduction in uncertainty about the prediction using this linear model. Since we saw that Miltal and Modellår were highly correlated, let’s now do the same analysis when excluding Miltal.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Försäljningspris <span class="sc">~</span> Modellår<span class="sc">+</span><span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span><span class="sc">+</span>Växellåda,<span class="at">data=</span>train_set) <span class="sc">|&gt;</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_log</span>(Försäljningspris,<span class="at">base =</span> <span class="fu">exp</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_ns</span>(Modellår, <span class="at">deg_free =</span> <span class="dv">3</span>)  <span class="sc">|&gt;</span></span>
+<span id="cb110-4"><a href="#cb110-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_ns</span>(<span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span>,<span class="at">deg_free =</span> <span class="dv">3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb110-5"><a href="#cb110-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb110-6"><a href="#cb110-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a>rec_prep <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec,<span class="at">training =</span> train_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>train_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec_prep, <span class="at">new_data =</span> train_set)</span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>val_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec_prep,<span class="at">new_data =</span> val_set)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> ., <span class="at">data =</span> train_baked)</span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">predict</span>(model, <span class="at">newdata =</span> val_baked))</span>
+<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>actual <span class="ot">&lt;-</span> <span class="fu">exp</span>(val_baked<span class="sc">$</span>Försäljningspris)</span>
+<span id="cb113-4"><a href="#cb113-4" aria-hidden="true" tabindex="-1"></a>rmse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((actual <span class="sc">-</span> preds)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb113-5"><a href="#cb113-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE: {round(rmse, 2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE: 40644.03</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE/Mean price: {round(rmse/mean(actual),2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE/Mean price: 0.24</code></pre>
+</div>
+</div>
+<p>We see that Miltal does help with the predictions even though it’s highly correlated with Modellår, so the model to choose is the one with Miltal. We now use the test set to get an unbiased estimate of model generalization.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Försäljningspris <span class="sc">~</span> Modellår<span class="sc">+</span><span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span><span class="sc">+</span>Växellåda<span class="sc">+</span>Miltal,<span class="at">data=</span>train_val_set) <span class="sc">|&gt;</span></span>
+<span id="cb117-2"><a href="#cb117-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_log</span>(Försäljningspris,<span class="at">base =</span> <span class="fu">exp</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb117-3"><a href="#cb117-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_ns</span>(Modellår, <span class="at">deg_free =</span> <span class="dv">3</span>)  <span class="sc">|&gt;</span></span>
+<span id="cb117-4"><a href="#cb117-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_ns</span>(<span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span>,<span class="at">deg_free =</span> <span class="dv">3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb117-5"><a href="#cb117-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb117-6"><a href="#cb117-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>())</span>
+<span id="cb117-7"><a href="#cb117-7" aria-hidden="true" tabindex="-1"></a>rec_prep <span class="ot">&lt;-</span> <span class="fu">prep</span>(rec,<span class="at">training =</span> train_set)</span>
+<span id="cb117-8"><a href="#cb117-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb117-9"><a href="#cb117-9" aria-hidden="true" tabindex="-1"></a>train_val_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec_prep, <span class="at">new_data =</span> train_val_set)</span>
+<span id="cb117-10"><a href="#cb117-10" aria-hidden="true" tabindex="-1"></a>test_baked <span class="ot">&lt;-</span> <span class="fu">bake</span>(rec_prep, <span class="at">new_data =</span> test_set)</span>
+<span id="cb117-11"><a href="#cb117-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb117-12"><a href="#cb117-12" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Försäljningspris <span class="sc">~</span> ., <span class="at">data =</span> train_val_baked)</span>
+<span id="cb117-13"><a href="#cb117-13" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">predict</span>(model, <span class="at">newdata =</span> test_baked))</span>
+<span id="cb117-14"><a href="#cb117-14" aria-hidden="true" tabindex="-1"></a>actual <span class="ot">&lt;-</span> <span class="fu">exp</span>(test_baked<span class="sc">$</span>Försäljningspris)</span>
+<span id="cb117-15"><a href="#cb117-15" aria-hidden="true" tabindex="-1"></a>rmse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((actual <span class="sc">-</span> preds)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb117-16"><a href="#cb117-16" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE: {round(rmse, 2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE: 38149.55</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE/Mean price: {round(rmse/mean(actual),2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE/Mean price: 0.2</code></pre>
+</div>
+</div>
+<p>Let’s now calculate robust prediction intervals by performing the following:</p>
+<ol type="1">
+<li><p>bootstrap sample remaining training dataset 1000 times and train a linear model for each</p>
+<p>bootstrap sample.</p></li>
+<li><p>Have every trained model predict the test set.</p></li>
+<li><p>Record the mean prediction and actual response for every observation in the test set</p></li>
+<li><p>Calculate the prediction interval lower and upper bounds and relative interval width</p></li>
+<li><p>plot the actual response values against the mean predictions with relative interval width as a ribbon</p></li>
+<li><p>Plot the response actual values against the relative interval widths</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> Försäljningspris <span class="sc">~</span> .</span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_prediction_intervals</span>(train_val_baked, test_baked, formula)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$data
+# A tibble: 180 × 5
+   actual_y mean_prediction lower_pi_bound upper_pi_bound relative_interval_wi…¹
+      &lt;dbl&gt;           &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;                  &lt;dbl&gt;
+ 1  129000          129407.         89455.        190491.                  0.781
+ 2  259900.         266699.        192387.        395969.                  0.763
+ 3  299900.         243323.        172465.        363220.                  0.784
+ 4   55000.          39871.         27814.         59696.                  0.800
+ 5   53500           48979.         34969.         72532.                  0.767
+ 6  218800          253789.        173560.        383689.                  0.828
+ 7  259800          288965.        204927.        413677.                  0.722
+ 8   55000.          94876.         69167.        138827.                  0.734
+ 9  249900.         266965.        189503.        374229.                  0.692
+10  144000.          87379.         60479.        126758.                  0.759
+# ℹ 170 more rows
+# ℹ abbreviated name: ¹​relative_interval_width
+
+$mean_pi_width
+[1] 0.749491
+
+$pi_plot</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-58-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+$pi_width_plot</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="main_files/figure-html/unnamed-chunk-58-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The plots show that the prediction intervals are tighter for lower price ranges, suggesting the model is bad at predicting the price in higher price ranges. This is due to the fact that we have restricted the training data to prices &lt; 500 000. Had we removed the higher price ranges from the test data, we would probably see a different result. We choose not to do this since predictions are all about generalization.</p>
+<p>As a point of comparison, and to illustrate the power of a carefully crafted linear regression model, we throw the dataset at a highly complex model (xgboostregressor) and evaluate it on the test set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create model matrix and response</span></span>
+<span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> Försäljningspris <span class="sc">~</span> Miltal<span class="sc">+</span>Modellår<span class="sc">+</span>Växellåda<span class="sc">+</span><span class="st">`</span><span class="at">Hästkrafter (HK)</span><span class="st">`</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb124-3"><a href="#cb124-3" aria-hidden="true" tabindex="-1"></a>X_train <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(</span>
+<span id="cb124-4"><a href="#cb124-4" aria-hidden="true" tabindex="-1"></a>  formula, </span>
+<span id="cb124-5"><a href="#cb124-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> train_val_set</span>
+<span id="cb124-6"><a href="#cb124-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb124-7"><a href="#cb124-7" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> train_val_set<span class="sc">$</span>Försäljningspris</span>
+<span id="cb124-8"><a href="#cb124-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-9"><a href="#cb124-9" aria-hidden="true" tabindex="-1"></a><span class="co"># For each factor column, reapply the training levels to val/test</span></span>
+<span id="cb124-10"><a href="#cb124-10" aria-hidden="true" tabindex="-1"></a>factor_vars <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">Filter</span>(is.factor, train_val_set))</span>
+<span id="cb124-11"><a href="#cb124-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-12"><a href="#cb124-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col <span class="cf">in</span> factor_vars) {</span>
+<span id="cb124-13"><a href="#cb124-13" aria-hidden="true" tabindex="-1"></a>  val_set[[col]] <span class="ot">&lt;-</span> <span class="fu">factor</span>(val_set[[col]], <span class="at">levels =</span> <span class="fu">levels</span>(train_val_set[[col]]))</span>
+<span id="cb124-14"><a href="#cb124-14" aria-hidden="true" tabindex="-1"></a>  test_set[[col]]       <span class="ot">&lt;-</span> <span class="fu">factor</span>(test_set[[col]], <span class="at">levels =</span> <span class="fu">levels</span>(train_val_set[[col]]))</span>
+<span id="cb124-15"><a href="#cb124-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb124-16"><a href="#cb124-16" aria-hidden="true" tabindex="-1"></a>X_test <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(</span>
+<span id="cb124-17"><a href="#cb124-17" aria-hidden="true" tabindex="-1"></a>  formula, </span>
+<span id="cb124-18"><a href="#cb124-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> test_set</span>
+<span id="cb124-19"><a href="#cb124-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb124-20"><a href="#cb124-20" aria-hidden="true" tabindex="-1"></a>y_test <span class="ot">&lt;-</span> test_set<span class="sc">$</span>Försäljningspris</span>
+<span id="cb124-21"><a href="#cb124-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-22"><a href="#cb124-22" aria-hidden="true" tabindex="-1"></a>xgb_model <span class="ot">&lt;-</span> <span class="fu">xgboost</span>(</span>
+<span id="cb124-23"><a href="#cb124-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> X_train,</span>
+<span id="cb124-24"><a href="#cb124-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> y_train,</span>
+<span id="cb124-25"><a href="#cb124-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrounds =</span> <span class="dv">100</span>,</span>
+<span id="cb124-26"><a href="#cb124-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">"reg:squarederror"</span>,</span>
+<span id="cb124-27"><a href="#cb124-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span></span>
+<span id="cb124-28"><a href="#cb124-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb124-29"><a href="#cb124-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-30"><a href="#cb124-30" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(xgb_model, <span class="at">newdata =</span> X_test)</span>
+<span id="cb124-31"><a href="#cb124-31" aria-hidden="true" tabindex="-1"></a>actual <span class="ot">&lt;-</span> y_test</span>
+<span id="cb124-32"><a href="#cb124-32" aria-hidden="true" tabindex="-1"></a>rmse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((actual <span class="sc">-</span> preds)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb124-33"><a href="#cb124-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-34"><a href="#cb124-34" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE: {round(rmse, 2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE: 43651.12</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE/Mean price: {round(rmse/mean(actual),2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE/Mean price: 0.23</code></pre>
+</div>
+</div>
+<p>As can be seen, the xgboost regressor actually performs slightly worse on the test set. But what if we give the xgboost regressor full access to all the predictors? Will we then see a dramatic improvement?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> Försäljningspris <span class="sc">~</span> . <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>X_train <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(</span>
+<span id="cb128-3"><a href="#cb128-3" aria-hidden="true" tabindex="-1"></a>  formula, </span>
+<span id="cb128-4"><a href="#cb128-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> train_val_set</span>
+<span id="cb128-5"><a href="#cb128-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb128-6"><a href="#cb128-6" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> train_val_set<span class="sc">$</span>Försäljningspris</span>
+<span id="cb128-7"><a href="#cb128-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-8"><a href="#cb128-8" aria-hidden="true" tabindex="-1"></a><span class="co"># For each factor column, reapply the training levels to val/test</span></span>
+<span id="cb128-9"><a href="#cb128-9" aria-hidden="true" tabindex="-1"></a>factor_vars <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">Filter</span>(is.factor, train_val_set))</span>
+<span id="cb128-10"><a href="#cb128-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-11"><a href="#cb128-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col <span class="cf">in</span> factor_vars) {</span>
+<span id="cb128-12"><a href="#cb128-12" aria-hidden="true" tabindex="-1"></a>  val_set[[col]] <span class="ot">&lt;-</span> <span class="fu">factor</span>(val_set[[col]], <span class="at">levels =</span> <span class="fu">levels</span>(train_val_set[[col]]))</span>
+<span id="cb128-13"><a href="#cb128-13" aria-hidden="true" tabindex="-1"></a>  test_set[[col]]       <span class="ot">&lt;-</span> <span class="fu">factor</span>(test_set[[col]], <span class="at">levels =</span> <span class="fu">levels</span>(train_val_set[[col]]))</span>
+<span id="cb128-14"><a href="#cb128-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb128-15"><a href="#cb128-15" aria-hidden="true" tabindex="-1"></a>X_test <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(</span>
+<span id="cb128-16"><a href="#cb128-16" aria-hidden="true" tabindex="-1"></a>  formula, </span>
+<span id="cb128-17"><a href="#cb128-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> test_set</span>
+<span id="cb128-18"><a href="#cb128-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb128-19"><a href="#cb128-19" aria-hidden="true" tabindex="-1"></a>y_test <span class="ot">&lt;-</span> test_set<span class="sc">$</span>Försäljningspris</span>
+<span id="cb128-20"><a href="#cb128-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-21"><a href="#cb128-21" aria-hidden="true" tabindex="-1"></a>xgb_model <span class="ot">&lt;-</span> <span class="fu">xgboost</span>(</span>
+<span id="cb128-22"><a href="#cb128-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> X_train,</span>
+<span id="cb128-23"><a href="#cb128-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> y_train,</span>
+<span id="cb128-24"><a href="#cb128-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrounds =</span> <span class="dv">100</span>,</span>
+<span id="cb128-25"><a href="#cb128-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">"reg:squarederror"</span>,</span>
+<span id="cb128-26"><a href="#cb128-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span></span>
+<span id="cb128-27"><a href="#cb128-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb128-28"><a href="#cb128-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-29"><a href="#cb128-29" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(xgb_model, <span class="at">newdata =</span> X_test)</span>
+<span id="cb128-30"><a href="#cb128-30" aria-hidden="true" tabindex="-1"></a>actual <span class="ot">&lt;-</span> y_test</span>
+<span id="cb128-31"><a href="#cb128-31" aria-hidden="true" tabindex="-1"></a>rmse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((actual <span class="sc">-</span> preds)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb128-32"><a href="#cb128-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-33"><a href="#cb128-33" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE: {round(rmse, 2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE: 36089.65</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">glue</span>(<span class="st">'RMSE/Mean price: {round(rmse/mean(actual),2)}'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE/Mean price: 0.19</code></pre>
+</div>
+</div>
+<p>The xgboost regressor only performs slightly better than the linear model. Nota bene that such a complex model is essentially a blackbox and we can’t really make any inferences. With linear regression on the other hand, we can say exactly which predictors contribute and by how much, making the simpler model superior in this case.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,735 @@
+---
+title: "Linear Regression"
+author: "Andreas Rasmusson"
+format: html
+editor: visual
+execute:
+  echo: true
+  results: hide
+  warning: false
+  message: false
+---
+
+## Imports
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+#| results: hide
+library(data.table)
+library(emmeans)
+source('code/data_fetch.R')
+source('code/data_cleaning.R')
+source ('code/plotting.R')
+source('code/transforms.R')
+source('code/helper_functions.R')
+library(rpart)
+library(correlation)
+library(car)
+library(glmnet)
+library(lmtest)
+library(ggeffects)
+library(sandwich)
+library(splines)
+library(recipes)
+library(tidymodels)
+library(xgboost)
+```
+
+First, we create the plots for the introduction
+
+```{r}
+plot_line(
+  time_series,
+  'num_private_cars',
+  'Total Number Of Privately Owned Cars',
+  'Number Of Privately Owned Cars Over Time'
+)
+
+plot_line(
+  time_series,
+  'median_inc_tkr',
+  'Median Yearly Income (kSEK)',
+  'Median Yearly Income Over Time'
+)
+```
+
+## Train, Val, Test splitting
+
+```{r}
+#| echo: true
+#| results: hide
+#| warning: false
+#| message: false
+df <- copy(clean_car_data) 
+
+set.seed(42)
+
+train_frac <- 0.7
+val_frac <- 0.15
+test_frac <- 0.15
+
+df <- df |> sample_frac(1)
+
+n <- nrow(df)
+train_idx <- 1:floor(train_frac * n)
+val_idx <- (max(train_idx) + 1):(max(train_idx) + floor(val_frac * n))
+test_idx <- setdiff(1:n, c(train_idx, val_idx))
+
+train_set <- df[train_idx, ]
+val_set <- df[val_idx, ]
+test_set <- df[test_idx, ]
+
+train_set
+val_set
+test_set
+```
+
+## Exploratory Data Analysis
+
+### Univariate- and target interaction Analysis
+
+#### Numerical variables
+
+##### Försäljningspris
+
+Let's look at the distribution of values
+
+```{r}
+plot_numerical_column(train_set,'Försäljningspris',20)
+```
+
+That doesn't look too nice. Let's find the extreme outlier and remove it (It's a rally car,so it's reasonable to remove that observation). Log transforming the target will also help.
+
+```{r}
+train_set <- train_set |>
+  filter(
+    Försäljningspris < 500000
+  ) |>
+  mutate(
+    Försäljningspris = log(Försäljningspris)
+  ) 
+plot_numerical_column(train_set,'Försäljningspris',20)
+```
+
+##### Miltal
+
+Let's have a look at the distribution
+
+```{r}
+plot_numerical_column(train_set,'Miltal',20)
+```
+
+Here too is an extreme outlier. The price associated with it about 36000 so it will mess with the regression if we keep it.Let's remove it
+
+```{r}
+train_set <- train_set |> filter(Miltal < 50000)
+plot_numerical_column(train_set,'Miltal',20)
+```
+
+Let's check how it interacts with the target
+
+```{r}
+plot_numerical_target_interaction(train_set,'Miltal','Försäljningspris')
+```
+
+This clear relationship is somewhat nonlinear. We may have to use splines splines for this feature.
+
+##### Modellår
+
+Let's have a look at the distribution.
+
+```{r}
+plot_numerical_column(train_set,'Modellår',20)
+```
+
+Looks pretty good. Let's check how it interacts with the target
+
+```{r}
+plot_numerical_target_interaction(train_set,'Modellår','Försäljningspris')
+```
+
+This variable too shows some nonlinearity. Moreover, judging by the plot, there seems to be rather few observations before 2010. Let's check this.
+
+```{r}
+train_set |> filter(Modellår <= 2010)
+```
+
+Only about 100 observations to cover ten years worth of Försäljningspris. That's a small proportion of the data to cover almost half of the number of years in the data. We will probably get a better model if we lower our ambitions and restrict the data to contain only observations with modellår no less than 2011.\
+
+```{r}
+train_set <- train_set |> filter(Modellår > 2010)
+```
+
+Let's plot target interaction again
+
+```{r}
+plot_numerical_target_interaction(train_set,'Modellår','Försäljningspris')
+```
+
+Still some linearity but better than before.
+
+##### Hästkrafter (HK)
+
+Looking at the distribution
+
+```{r}
+plot_numerical_column(train_set,'Hästkrafter (HK)',20)
+```
+
+There are a few outliers here but they are probably informative. We keep them for now. Let's check the interaction with the target.
+
+```{r}
+plot_numerical_target_interaction(train_set,'Hästkrafter (HK)','Försäljningspris')
+```
+
+This feature is non-linear. Splines will have to be used.
+
+#### Categorical variables
+
+##### Bränsle
+
+```{r}
+plot_categorical_column(train_set,'Bränsle')
+```
+
+El is a rare category.Let's see if it has a significantly different Försäljningspris
+
+```{r}
+model <- lm(Försäljningspris ~ Bränsle, data = train_set)
+emmeans(model, pairwise ~ Bränsle)
+```
+
+It does seem like we hould keep El separate. Let's keep see if three categories works.
+
+```{r}
+train_set <- high_cardinality_to_low(train_set,'Bränsle','Försäljningspris',desired_cardinality = 3)
+plot_categorical_column(train_set,'Bränsle')
+```
+
+Let's check differences in Försäljningspris distribution again.
+
+```{r}
+model <- lm(Försäljningspris ~ Bränsle, data = train_set)
+emmeans(model, pairwise ~ Bränsle)
+```
+
+Not quite but we'll leave it as is for now. Let's plot the interaction with the target
+
+```{r}
+plot_categorical_target_interaction(train_set,'Bränsle')
+```
+
+##### Växellåda
+
+```{r}
+plot_categorical_column(train_set,'Växellåda')
+model <- lm(Försäljningspris ~ Växellåda, data = train_set)
+emmeans(model, pairwise ~ Växellåda)
+plot_categorical_target_interaction(train_set,'Växellåda')
+```
+
+No problems here.
+
+##### Biltyp
+
+```{r}
+plot_categorical_column(train_set,'Biltyp')
+```
+
+There are several rare types here. Moreover, Familjebuss is a very special category and we will most probably get a better model if we stick with the more common types. Let's see if we can reduce this to 2 distinct categories and also have significant difference in mean Försäljningspris.
+
+```{r}
+train_set <- train_set |>
+  filter(!(Biltyp %in% c('Familjebuss','Sedan','Coupé','Cab')))
+
+train_set <- high_cardinality_to_low(train_set,'Biltyp','Försäljningspris',desired_cardinality = 2)
+
+plot_categorical_column(train_set,'Biltyp')
+
+model <- lm(Försäljningspris ~ Biltyp, data = train_set)
+emmeans(model, pairwise ~ Biltyp)
+plot_categorical_target_interaction(train_set,'Biltyp')
+```
+
+This looks good.
+
+##### Drivning
+
+```{r}
+plot_categorical_column(train_set,'Drivning')
+model <- lm(Försäljningspris ~ Drivning, data = train_set)
+emmeans(model, pairwise ~ Drivning)
+plot_categorical_target_interaction(train_set,'Drivning')
+```
+
+No problems here.
+
+##### Färg
+
+```{r}
+plot_categorical_column(train_set,'Färg')
+```
+
+This is a problematic feature. There is a high number of categories and most of them are rare. Let's see if we can reduce the number categories to three and also have significantly different means for Försäljningspris
+
+```{r}
+train_set <- high_cardinality_to_low(
+  train_set,'Färg',
+  'Försäljningspris',
+  desired_cardinality = 3
+)
+model <- lm(Försäljningspris ~ Färg, data = train_set)
+emmeans(model, pairwise ~ Färg)
+plot_categorical_target_interaction(train_set,'Färg')
+
+```
+
+##### Modell
+
+```{r}
+plot_categorical_column(train_set,'Modell')
+```
+
+Another problematic column. Let's see if we can reduce the number of distinct categories to 3 and also also have significantly different means for Försäljningspris.
+
+```{r}
+train_set <- high_cardinality_to_low(train_set,'Modell','Försäljningspris',3)
+model <- lm(Försäljningspris ~ Modell, data = train_set)
+emmeans(model, pairwise ~ Modell)
+plot_categorical_target_interaction(train_set,'Modell')
+```
+
+### Multivariate analysis
+
+Let's create an association plot
+
+```{r}
+result <- plot_association_matrix(train_set)
+result$plot
+```
+
+Here we see that:
+
+1.  The variables most correlated with Försäljningspris are Modellår, Miltal, Hästkrafter (Hk) and Växellåda. Let's be economical and use only these variables to begin with and see how far that takes us.
+2.  Modellår and Miltal are highly correlated. We'll keep them both for now and check VIF values.
+
+### Inference
+
+Let's perform scaling
+
+```{r}
+train_set <- train_set |>
+ mutate(
+   across(
+     .cols = where(is.numeric) & !matches("Försäljningspris"),
+     .fns = ~ scale(.)[,1]
+   )
+ )
+```
+
+Now let's train the model and check VIF values
+
+```{r}
+model <- lm(
+  Försäljningspris ~ 
+    bs(Modellår,df=3)+bs(`Hästkrafter (HK)`,df=3)+Växellåda+Miltal,   
+    data = train_set
+)
+vif(model)
+```
+
+No problems here. Let's check the distribution of the residuals.
+
+```{r}
+hist(residuals(model), breaks = 30)
+```
+
+Here we see that there is an observations on the left that messes with the symmetry of the plot. If not for these, the histogram of residuals would look pretty normal. Let's find out more about these.
+
+```{r}
+residuals <- residuals(model)
+threshold <- -1
+extreme_left <- which(residuals < threshold)
+data.frame(Index = extreme_left, Residual = residuals[extreme_left])
+```
+
+Let's have a look at observation 338
+
+```{r}
+view_original_observation(338,df,train_set)
+```
+
+This is a SUV from 2022 with a low value of 7860 on Miltal with a Försäljningspris of only 31900. Such a low price seems very unlikely for such a new car. This could possibly be due to faulty data collection. We remove this observation as it is a true outlier.
+
+```{r}
+train_set <- train_set[-338,]
+```
+
+```{r}
+model <- lm(
+  Försäljningspris ~ 
+    bs(Modellår,df=3)+bs(`Hästkrafter (HK)`,df=3)+Växellåda+Miltal,   
+    data = train_set
+)
+vif(model)
+hist(residuals(model), breaks = 30)
+```
+
+Now the histogram looks much better. Let's look at residuals vs fitted
+
+```{r}
+plot(model, which = 1)
+```
+
+This is how we want this plot to look. A random cloud with no discernible pattern and a mean very close to zero. There are 3 observations that have been flagged. Let's run a test for autocorrelation and check the mean of the residuals.\
+
+```{r}
+dwtest(model)
+print(glue('Mean residual value: {mean(resid(model))}'))
+```
+
+No autocorrelation. That's good. Let's have a look at the three flagged observations.
+
+```{r}
+view_original_observation(195,df,train_set)
+view_original_observation(487,df,train_set)
+view_original_observation(518,df,train_set)
+```
+
+None of these observations seem to stand out very much. Let's move on the the Q-Q plot.
+
+```{r}
+plot(model, which = 2)
+```
+
+Let's run a test for normality.
+
+```{r}
+shapiro.test(residuals(model))
+```
+
+So, we have established that the normality assumption is violated, but it is in all probability due to only a few unusual but valid observations. Let's move on to plotting the fitted values against the standardized residuals.
+
+```{r}
+plot(model, which = 3)
+```
+
+There is a slight U-shape here suggesting some heteroscedasticity. Let's run a test for it
+
+```{r}
+bptest(model)
+```
+
+The test confirms that there is indeed heteroscedasticity. We therefore decide to use robust standard errors. Let's move on to checking leverage and Cook's distance
+
+```{r}
+plot(model, which = 5)
+sort(cooks.distance(model), decreasing = TRUE)[1:10]
+```
+
+No point exceed a Cook's distance of 0.5, which is good. We are now ready to check the significance of the coefficients of the predictors and confidence intervals using robust standard errors and a robust F-statistic.
+
+```{r}
+vcov = vcovHC(model, type = "HC1")
+coeftest(model, vcov = vcov)
+waldtest(model, vcov = vcov, test = "F")
+coefci(model, vcov = vcov)
+r2 <- summary(model)$r.squared
+adj_r2 <- summary(model)$adj.r.squared
+
+cat('\nR-squared:', round(r2, 4), '\n')
+cat('\nAdjusted R-squared:', round(adj_r2, 4), '\n')
+```
+
+Let's also test the splined variables as a whole for significance
+
+```{r}
+linearHypothesis(
+  model,
+  c(
+    'bs(Modellår, df = 3)1 = 0',
+    'bs(Modellår, df = 3)2 = 0',
+    'bs(Modellår, df = 3)3 = 0'
+    
+  ),
+  vcov = vcov
+)
+
+linearHypothesis(
+  model,
+  c(
+    'bs(`Hästkrafter (HK)`, df = 3)1 = 0',
+    'bs(`Hästkrafter (HK)`, df = 3)2 = 0',
+    'bs(`Hästkrafter (HK)`, df = 3)3 = 0'
+    
+  ),
+  vcov = vcov
+)
+```
+
+Finally, let's create marginal effect plots for each of the predictors and calculate partial r\^2 for each of the predictors.
+
+```{r}
+train_set_renamed <- train_set |>
+  rename(Hästkrafter = `Hästkrafter (HK)`)
+model2 <- lm(
+  Försäljningspris ~ 
+    bs(Modellår,df=3)+bs(Hästkrafter,df=3)+Växellåda+Miltal,   
+    data = train_set_renamed
+)
+ggpredict(model2, 'Modellår') |> plot()
+ggpredict(model2, 'Miltal') |> plot()
+ggpredict(model2, 'Hästkrafter') |> plot()
+ggpredict(model2, 'Växellåda') |> plot()
+
+full_model = model
+rss_full <-sum(residuals(full_model)^2)
+
+reduced_model <- update(model, . ~ . -bs(Modellår, df=3))
+rss_reduced <- sum(residuals(reduced_model)^2)
+partial_r2 <- (rss_reduced - rss_full) / rss_reduced
+print(glue('Modellår partial r2: {round(partial_r2,2)}'))
+
+reduced_model <- update(model, . ~ . -bs(`Hästkrafter (HK)`, df=3))
+rss_reduced <- sum(residuals(reduced_model)^2)
+partial_r2 <- (rss_reduced - rss_full) / rss_reduced
+print(glue('Hästkrafter (HK) partial r2: {round(partial_r2,2)}'))
+
+reduced_model <- update(model, . ~ . -Miltal)
+rss_reduced <- sum(residuals(reduced_model)^2)
+partial_r2 <- (rss_reduced - rss_full) / rss_reduced
+print(glue('Miltal partial r2: {round(partial_r2,2)}'))
+
+reduced_model <- update(model, . ~ . -Växellåda)
+rss_reduced <- sum(residuals(reduced_model)^2)
+partial_r2 <- (rss_reduced - rss_full) / rss_reduced
+print(glue('Växellåda partial r2: {round(partial_r2,2)}'))
+```
+
+### Prediction
+
+Now we turn to checking the performance of the model. For this, we need to apply the same transformations to the validation- and test sets as we did for the training set. We'll use the recipes library for this.
+
+```{r}
+n <- nrow(df)
+train_idx <- 1:floor(train_frac * n)
+val_idx <- (max(train_idx) + 1):(max(train_idx) + floor(val_frac * n))
+test_idx <- setdiff(1:n, c(train_idx, val_idx))
+
+train_set <- df[train_idx, ]
+val_set <- df[val_idx, ]
+train_val_set <- bind_rows(train_set,val_set)
+test_set <- df[test_idx, ]
+
+train_set <- train_set |> 
+  filter(
+    Försäljningspris < 500000 & 
+    Försäljningspris != 31900 & 
+    Modellår > 2010 & 
+    Miltal < 30000
+  )
+
+train_val_set <- train_val_set |> 
+  filter(
+    Försäljningspris < 500000 & 
+    Försäljningspris != 31900 & 
+    Modellår > 2010 & 
+    Miltal < 30000
+  )
+```
+
+Define the recipe.
+
+```{r}
+rec <- recipe(Försäljningspris ~ Modellår+`Hästkrafter (HK)`+Växellåda+Miltal,data=train_set) |>
+  step_log(Försäljningspris,base = exp(1)) |>
+  step_ns(Modellår, deg_free = 3)  |>
+  step_ns(`Hästkrafter (HK)`,deg_free = 3) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors())
+```
+
+Prepare the recipe
+
+```{r}
+rec_prep <- prep(rec,training = train_set)
+```
+
+Bake.
+
+```{r}
+train_baked <- bake(rec_prep, new_data = train_set)
+val_baked <- bake(rec_prep,new_data = val_set)
+```
+
+```{r}
+model <- lm(Försäljningspris ~ ., data = train_baked)
+preds <- exp(predict(model, newdata = val_baked))
+actual <- exp(val_baked$Försäljningspris)
+rmse <- sqrt(mean((actual - preds)^2))
+print(glue('RMSE: {round(rmse, 2)}'))
+print(glue('RMSE/Mean price: {round(rmse/mean(actual),2)}\n\n'))
+
+print(glue('RMSE naive: {round(sqrt(mean((actual-mean(actual))^2)),2)}'))
+print(glue(
+  'RMSE naive/Mean price: {round(sqrt(mean((actual-mean(actual))^2))/mean(actual),2)}'
+))
+```
+
+Let's now do the same analysis when excluding Miltal.
+
+```{r}
+rec <- recipe(Försäljningspris ~ Modellår+`Hästkrafter (HK)`+Växellåda,data=train_set) |>
+  step_log(Försäljningspris,base = exp(1)) |>
+  step_ns(Modellår, deg_free = 3)  |>
+  step_ns(`Hästkrafter (HK)`,deg_free = 3) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors())
+```
+
+```{r}
+rec_prep <- prep(rec,training = train_set)
+```
+
+```{r}
+train_baked <- bake(rec_prep, new_data = train_set)
+val_baked <- bake(rec_prep,new_data = val_set)
+print(train_baked)
+```
+
+```{r}
+model <- lm(Försäljningspris ~ ., data = train_baked)
+preds <- exp(predict(model, newdata = val_baked))
+actual <- exp(val_baked$Försäljningspris)
+rmse <- sqrt(mean((actual - preds)^2))
+print(glue('RMSE: {round(rmse, 2)}'))
+print(glue('RMSE/Mean price: {round(rmse/mean(actual),2)}'))
+```
+
+We see that Miltal does help with the predictions even though it's highly correlated with Modellår, so the model to choose is the one with Miltal. We now use the test set to get an unbiased estimate of model generalization.
+
+```{r}
+rec <- recipe(Försäljningspris ~ Modellår+`Hästkrafter (HK)`+Växellåda+Miltal,data=train_val_set) |>
+  step_log(Försäljningspris,base = exp(1)) |>
+  step_ns(Modellår, deg_free = 3)  |>
+  step_ns(`Hästkrafter (HK)`,deg_free = 3) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors())
+rec_prep <- prep(rec,training = train_set)
+
+train_val_baked <- bake(rec_prep, new_data = train_val_set)
+test_baked <- bake(rec_prep, new_data = test_set)
+
+model <- lm(Försäljningspris ~ ., data = train_val_baked)
+preds <- exp(predict(model, newdata = test_baked))
+actual <- exp(test_baked$Försäljningspris)
+rmse <- sqrt(mean((actual - preds)^2))
+print(glue('RMSE: {round(rmse, 2)}'))
+print(glue('RMSE/Mean price: {round(rmse/mean(actual),2)}'))
+```
+
+This is a pretty nice result. As compared to the most basic model of simply predicting the mean, we get an almost 65% reduction in uncertainty about the prediction using this linear model. Let's now calculate robust prediction intervals by performing the following:
+
+1.  bootstrap sample the training dataset 1000 times and train a linear model for each
+
+    bootstrap sample.
+
+2.  Have every trained model predict the test set.
+
+3.  Record the mean prediction and actual response for every observation in the test set
+
+4.  Calculate the prediction interval lower and upper bounds and relative interval width
+
+5.  plot the actual response values against the mean predictions with relative interval width as a ribbon
+
+6.  Plot the response actual values against the relative interval widths
+
+```{r}
+formula <- Försäljningspris ~ .
+plot_prediction_intervals(train_val_baked, test_baked, formula)
+```
+
+The plots show that the prediction intervals are tighter for lower price ranges, suggesting the model is bad at predicting the price in higher price ranges. This is due to the fact that we have restricted the training data to prices \< 500 000. Had we removed the higher price ranges from the test data, we would probably see a different result. We choose not to do this since predictions are all about generalization.
+
+As a point of comparison, and to illustrate the power of a carefully crafted linear regression model, we throw the dataset at a highly complex model (xgboostregressor) and evaluate it on the test set.
+
+```{r}
+# Create model matrix and response
+formula <- Försäljningspris ~ Miltal+Modellår+Växellåda+`Hästkrafter (HK)` -1
+X_train <- model.matrix(
+  formula, 
+  data = train_val_set
+)
+y_train <- train_val_set$Försäljningspris
+
+# For each factor column, reapply the training levels to val/test
+factor_vars <- names(Filter(is.factor, train_val_set))
+
+for (col in factor_vars) {
+  val_set[[col]] <- factor(val_set[[col]], levels = levels(train_val_set[[col]]))
+  test_set[[col]]       <- factor(test_set[[col]], levels = levels(train_val_set[[col]]))
+}
+X_test <- model.matrix(
+  formula, 
+  data = test_set
+)
+y_test <- test_set$Försäljningspris
+
+xgb_model <- xgboost(
+  data = X_train,
+  label = y_train,
+  nrounds = 100,
+  objective = "reg:squarederror",
+  verbose = 0
+)
+
+preds <- predict(xgb_model, newdata = X_test)
+actual <- y_test
+rmse <- sqrt(mean((actual - preds)^2))
+
+print(glue('RMSE: {round(rmse, 2)}'))
+print(glue('RMSE/Mean price: {round(rmse/mean(actual),2)}'))
+```
+
+As can be seen, the xgboost regressor actually performs slightly worse on the test set. But what if we give the xgboost regressor full access to all the predictors? Will we then see a dramatic improvement?
+
+```{r}
+formula <- Försäljningspris ~ . -1
+X_train <- model.matrix(
+  formula, 
+  data = train_val_set
+)
+y_train <- train_val_set$Försäljningspris
+
+# For each factor column, reapply the training levels to val/test
+factor_vars <- names(Filter(is.factor, train_val_set))
+
+for (col in factor_vars) {
+  val_set[[col]] <- factor(val_set[[col]], levels = levels(train_val_set[[col]]))
+  test_set[[col]]       <- factor(test_set[[col]], levels = levels(train_val_set[[col]]))
+}
+X_test <- model.matrix(
+  formula, 
+  data = test_set
+)
+y_test <- test_set$Försäljningspris
+
+xgb_model <- xgboost(
+  data = X_train,
+  label = y_train,
+  nrounds = 100,
+  objective = "reg:squarederror",
+  verbose = 0
+)
+
+preds <- predict(xgb_model, newdata = X_test)
+actual <- y_test
+rmse <- sqrt(mean((actual - preds)^2))
+
+print(glue('RMSE: {round(rmse, 2)}'))
+print(glue('RMSE/Mean price: {round(rmse/mean(actual),2)}'))
+```
+
+The xgboost regressor only performs slightly better than the linear model. Nota bene that such a complex model is essentially a blackbox and we can't really make any inferences. With linear regression on the other hand, we can say exactly which predictors contribute and by how much, making the simpler model superior in this case.
